@@ -216,7 +216,7 @@
                             <span @click="switchTab('policy')" class="text-xs text-blue-600 hover:underline cursor-pointer">查看全部政策大厅 →</span>
                         </div>
                         <div class="space-y-4">
-                            <div v-for="policy in mockPolicies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.name)">
+                            <div v-for="policy in policies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.name)">
                                 <div class="flex justify-between text-xs text-slate-400 mb-1">
                                     <span>类别: {{ policy.cat }}</span>
                                     <span>{{ policy.date }}</span>
@@ -237,7 +237,7 @@
                             <span @click="switchTab('services')" class="text-xs text-emerald-600 hover:underline cursor-pointer">机构筛选与查找 →</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div v-for="inst in mockInstitutes.slice(0, 4)" :key="inst.id" class="border rounded-xl p-3 hover:shadow-sm">
+                            <div v-for="inst in institutes.slice(0, 4)" :key="inst.id" class="border rounded-xl p-3 hover:shadow-sm">
                                 <div class="h-24 bg-slate-100 rounded-lg mb-2 relative overflow-hidden flex items-center justify-center">
                                     <span class="text-3xl text-emerald-700/30">🏨</span>
                                     <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
@@ -332,7 +332,7 @@
 
                     <!-- 机构卡片网格 -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div v-for="inst in filteredInstitutes" :key="inst.id" class="bg-white rounded-2xl border p-4 hover:shadow-md transition-all flex flex-col justify-between">
+                        <div v-for="inst in institutes" :key="inst.id" class="bg-white rounded-2xl border p-4 hover:shadow-md transition-all flex flex-col justify-between">
                             <div>
                                 <div class="bg-slate-100 rounded-xl h-44 flex items-center justify-center text-4xl text-slate-300 relative mb-3">
                                     🏢
@@ -448,7 +448,7 @@
                         <div class="bg-white p-6 rounded-2xl border shadow-sm">
                             <h3 class="font-bold text-lg mb-4 text-slate-700 border-b pb-2">📂 当地政策及细则全文</h3>
                             <div class="space-y-4">
-                                <div v-for="policy in mockPolicies" :key="policy.id" class="p-4 bg-slate-50 rounded-xl hover:shadow-sm border transition-all">
+                                <div v-for="policy in policies" :key="policy.id" class="p-4 bg-slate-50 rounded-xl hover:shadow-sm border transition-all">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-xs font-bold px-2.5 py-1 rounded bg-blue-100 text-blue-800">{{ policy.cat }}</span>
                                         <span class="text-xs text-slate-400">{{ policy.date }}</span>
@@ -606,7 +606,33 @@
                 </div>
             </div>
 
-            <!-- 模块 5: RAG后台管理与知识库运维 (RAG闭环展示) -->
+            <!-- 模块 5: 用户中心 -->
+            <div v-if="currentTab === 'user'" class="space-y-6">
+                <div v-if="!authUser" class="bg-amber-50 border border-amber-200 rounded-xl p-8 text-center">
+                    <p class="text-amber-700 font-bold text-lg">请先登录</p>
+                    <button @click="showLoginModal = true" class="mt-3 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">去登录</button>
+                </div>
+                <template v-else>
+                    <div class="bg-white rounded-2xl border p-6 shadow-sm">
+                        <h2 class="font-bold text-xl mb-4">👤 个人信息</h2>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><span class="text-slate-400">用户名：</span><span class="font-bold">{{ authUser.username }}</span></div>
+                            <div><span class="text-slate-400">角色：</span><span class="font-bold">{{ authUser.role === 'admin' ? '管理员' : '普通用户' }}</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl border p-6 shadow-sm">
+                        <h2 class="font-bold text-xl mb-4">📋 我的预约</h2>
+                        <div v-if="orderList.length === 0" class="text-slate-400 text-sm">暂无预约记录</div>
+                        <div v-for="o in orderList" :key="o.id" class="border-b py-2 text-sm flex justify-between">
+                            <span>{{ o.service_name || o.type }}</span>
+                            <span class="text-slate-400">{{ o.date }} {{ o.time_slot || '' }}</span>
+                            <span :class="o.status === 'confirmed' ? 'text-emerald-600' : 'text-amber-600'">{{ o.status === 'confirmed' ? '已确认' : '待处理' }}</span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- 模块 6: RAG后台管理与知识库运维 (RAG闭环展示) -->
             <div v-if="currentTab === 'admin'" class="space-y-6">
                 <div class="bg-slate-900 text-white p-6 rounded-2xl shadow">
                     <h2 class="font-extrabold text-xl mb-1">🤖 养老专属 RAG 知识库后台运维端</h2>
@@ -973,17 +999,17 @@
                 // --- 标签页切换逻辑 ---
                 const switchTab = (tabId) => {
                     currentTab.value = tabId;
-                    // 场景自动感知：AI 助手底层匹配当前页面对应的专属 RAG 知识库
-                    if (tabId === 'policy') {
-                        currentKbType.value = 'policy';
-                    } else if (tabId === 'health') {
-                        currentKbType.value = 'health';
-                    } else if (tabId === 'services') {
-                        currentKbType.value = 'services';
-                    } else {
-                        currentKbType.value = 'platform';
-                    }
+                    if (tabId === 'policy') { currentKbType.value = 'policy'; fetchPolicies(); }
+                    else if (tabId === 'health') { currentKbType.value = 'health'; }
+                    else if (tabId === 'services') { currentKbType.value = 'services'; fetchInstitutes(); fetchServices(); }
+                    else if (tabId === 'user') { fetchOrders(); }
+                    else { currentKbType.value = 'platform'; }
                 };
+
+                // 初始化
+                loadAuth();
+                fetchPolicies();
+                fetchInstitutes();
 
                 // --- 养老机构查询（真实 API） ---
                 const institutes = ref([]);
