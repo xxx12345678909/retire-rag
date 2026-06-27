@@ -1,0 +1,398 @@
+2026-06-27 08:54:58,002 - agent - INFO - app.py:89 - [API]收到提问：hi... session=vue-1782521697989
+2026-06-27 08:54:58,003 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：hi...
+2026-06-27 08:55:03,829 - agent - INFO - app.py:89 - [API]收到提问：如何合并绑定老人的北京养老卡？... session=vue-1782521703827
+2026-06-27 08:55:03,840 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何合并绑定老人的北京养老卡？...
+2026-06-27 08:56:46,520 - agent - INFO - app.py:89 - [API]收到提问：hi... session=vue-1782521806517
+2026-06-27 08:56:46,521 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：hi...
+2026-06-27 08:56:46,846 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='hi'，返回0条
+2026-06-27 08:56:47,127 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='hi'，返回0条
+2026-06-27 08:56:47,127 - agent - WARNING - rag_service.py:66 - [RagService]'平台操作库'未找到相关资料
+2026-06-27 08:56:47,128 - agent - INFO - app.py:127 - [QA日志]id=04c8156bb2e4 intent=general kb=platform
+2026-06-27 08:56:51,014 - agent - INFO - app.py:89 - [API]收到提问：如何合并绑定老人的北京养老卡？... session=vue-1782521811012
+2026-06-27 08:56:51,015 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何合并绑定老人的北京养老卡？...
+2026-06-27 08:56:51,167 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回0条
+2026-06-27 08:56:51,304 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回0条
+2026-06-27 08:56:51,304 - agent - WARNING - rag_service.py:66 - [RagService]'平台操作库'未找到相关资料
+2026-06-27 08:56:51,304 - agent - INFO - app.py:127 - [QA日志]id=6d6b7224f116 intent=general kb=platform
+2026-06-27 08:56:58,338 - agent - INFO - app.py:89 - [API]收到提问：如何预约居家服务... session=vue-1782521818337
+2026-06-27 08:56:58,338 - agent - INFO - chat_service.py:142 - [service_flow]处理服务类问题：如何预约居家服务...
+2026-06-27 08:56:58,486 - agent - INFO - rag_service.py:50 - [RagService]检索'养老服务库'：query='如何预约居家服务'，返回0条
+2026-06-27 08:56:58,724 - agent - INFO - rag_service.py:50 - [RagService]检索'养老服务库'：query='如何预约居家服务'，返回0条
+2026-06-27 08:56:58,724 - agent - WARNING - rag_service.py:66 - [RagService]'养老服务库'未找到相关资料
+2026-06-27 08:56:58,724 - agent - INFO - app.py:127 - [QA日志]id=2afaa9f763d7 intent=service kb=service
+2026-06-27 09:06:02,459 - agent - INFO - app.py:89 - [API]收到提问：hi... session=vue-1782522362455
+2026-06-27 09:06:02,459 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：hi...
+2026-06-27 09:06:02,903 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='hi'，返回0条
+2026-06-27 09:06:03,050 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='hi'，返回0条
+2026-06-27 09:06:03,050 - agent - WARNING - rag_service.py:66 - [RagService]'平台操作库'未找到相关资料
+2026-06-27 09:06:03,051 - agent - INFO - app.py:127 - [QA日志]id=d54cefd7edee intent=general kb=platform
+2026-06-27 09:06:05,200 - agent - INFO - app.py:89 - [API]收到提问：如何合并绑定老人的北京养老卡？... session=vue-1782522365199
+2026-06-27 09:06:05,201 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何合并绑定老人的北京养老卡？...
+2026-06-27 09:06:05,517 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回0条
+2026-06-27 09:06:05,752 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回0条
+2026-06-27 09:06:05,752 - agent - WARNING - rag_service.py:66 - [RagService]'平台操作库'未找到相关资料
+2026-06-27 09:06:05,752 - agent - INFO - app.py:127 - [QA日志]id=91190afb08f2 intent=general kb=platform
+2026-06-27 09:11:37,784 - agent - INFO - vector_store.py:151 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf → 11个分片
+2026-06-27 09:11:38,613 - agent - INFO - vector_store.py:151 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf → 9个分片
+2026-06-27 09:11:39,227 - agent - INFO - vector_store.py:151 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf → 8个分片
+2026-06-27 09:11:40,068 - agent - INFO - vector_store.py:151 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf → 7个分片
+2026-06-27 09:11:40,558 - agent - INFO - vector_store.py:151 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf → 5个分片
+2026-06-27 09:11:41,045 - agent - INFO - vector_store.py:151 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt → 6个分片
+2026-06-27 09:11:41,358 - agent - INFO - vector_store.py:151 - [加载知识库][service]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt → 6个分片
+2026-06-27 09:11:41,944 - agent - INFO - vector_store.py:151 - [加载知识库][health]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt → 7个分片
+2026-06-27 09:11:42,439 - agent - INFO - vector_store.py:151 - [加载知识库][platform]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt → 7个分片
+2026-06-27 09:11:42,439 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:15:45,478 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:15:45,479 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:15:45,480 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:15:45,480 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:15:45,481 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:15:45,482 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:15:45,482 - agent - INFO - vector_store.py:132 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:15:45,483 - agent - INFO - vector_store.py:132 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:15:45,483 - agent - INFO - vector_store.py:132 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:15:45,484 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:15:57,157 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:15:57,158 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:15:57,159 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:15:57,159 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:15:57,160 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:15:57,160 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:15:57,160 - agent - INFO - vector_store.py:132 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:15:57,161 - agent - INFO - vector_store.py:132 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:15:57,161 - agent - INFO - vector_store.py:132 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:15:57,161 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:16:00,805 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:16:00,807 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:16:00,808 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:16:00,808 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:16:00,809 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:16:00,809 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:16:00,810 - agent - INFO - vector_store.py:132 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:16:00,810 - agent - INFO - vector_store.py:132 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:16:00,811 - agent - INFO - vector_store.py:132 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:16:00,811 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:21:23,700 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:21:23,701 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:21:23,702 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:21:23,702 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:21:23,703 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:21:23,703 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:21:23,704 - agent - INFO - vector_store.py:132 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:21:23,704 - agent - INFO - vector_store.py:132 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:21:23,706 - agent - INFO - vector_store.py:132 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:21:23,706 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:21:27,333 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:21:27,334 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:21:27,334 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:21:27,334 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:21:27,336 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:21:27,336 - agent - INFO - vector_store.py:132 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:21:27,336 - agent - INFO - vector_store.py:132 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:21:27,337 - agent - INFO - vector_store.py:132 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:21:27,337 - agent - INFO - vector_store.py:132 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:21:27,338 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:21:32,882 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:21:32,883 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:21:32,884 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:21:32,884 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:21:32,885 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:21:32,886 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:21:32,886 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:21:32,886 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:21:32,887 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:21:32,887 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:22:03,150 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:22:03,151 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:22:03,152 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:22:03,153 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:22:03,153 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:22:03,154 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:22:03,154 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:22:03,154 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:22:03,155 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:24:03,246 - agent - ERROR - vector_store.py:170 - [加载知识库][policy]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:03,983 - agent - ERROR - vector_store.py:170 - [加载知识库][policy]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:04,759 - agent - ERROR - vector_store.py:170 - [加载知识库][policy]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:05,629 - agent - ERROR - vector_store.py:170 - [加载知识库][policy]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:06,208 - agent - ERROR - vector_store.py:170 - [加载知识库][policy]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:06,820 - agent - ERROR - vector_store.py:170 - [加载知识库][policy]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:07,225 - agent - ERROR - vector_store.py:170 - [加载知识库][service]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:07,732 - agent - ERROR - vector_store.py:170 - [加载知识库][health]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:08,354 - agent - ERROR - vector_store.py:170 - [加载知识库][platform]加载失败：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt，Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+Traceback (most recent call last):
+  File "C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\rag\vector_store.py", line 165, in _load_into_kb
+    self.vector_stores[kb_name].add_documents(split_document)
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_core\vectorstores\base.py", line 258, in add_documents
+    return self.add_texts(texts, metadatas, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\x\anaconda3\Lib\site-packages\langchain_chroma\vectorstores.py", line 651, in add_texts
+    self._collection.upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\models\Collection.py", line 530, in upsert
+    self._client._upsert(
+  File "D:\Users\x\anaconda3\Lib\site-packages\chromadb\api\rust.py", line 541, in _upsert
+    return self.bindings.upsert(
+           ^^^^^^^^^^^^^^^^^^^^^
+chromadb.errors.InternalError: Error in compaction: Error reading from metadata segment reader: error occurred while decoding column 0: mismatched types; Rust type `u64` (as SQL type `INTEGER`) is not compatible with SQL type `BLOB` 
+2026-06-27 09:24:26,167 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf → 11个分片
+2026-06-27 09:24:26,840 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf → 9个分片
+2026-06-27 09:24:27,461 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf → 8个分片
+2026-06-27 09:24:28,154 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf → 7个分片
+2026-06-27 09:24:28,405 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf → 5个分片
+2026-06-27 09:24:28,628 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt → 6个分片
+2026-06-27 09:24:29,184 - agent - INFO - vector_store.py:168 - [加载知识库][service]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt → 6个分片
+2026-06-27 09:24:37,586 - agent - INFO - vector_store.py:168 - [加载知识库][health]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt → 7个分片
+2026-06-27 09:24:38,012 - agent - INFO - vector_store.py:168 - [加载知识库][platform]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt → 7个分片
+2026-06-27 09:24:38,013 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:24:41,772 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:24:41,773 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:24:41,773 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:24:41,774 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:24:41,774 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:24:41,775 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:24:41,775 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:24:41,775 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:24:41,777 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:24:41,777 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:24:57,282 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:24:57,283 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:24:57,284 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:24:57,285 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:24:57,286 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:24:57,286 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:24:57,286 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:24:57,287 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:24:57,288 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:24:57,288 - agent - INFO - app.py:49 - [startup]知识库加载完成
+2026-06-27 09:27:56,544 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf → 11个分片
+2026-06-27 09:27:57,458 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf → 9个分片
+2026-06-27 09:27:58,266 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf → 8个分片
+2026-06-27 09:27:58,822 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf → 7个分片
+2026-06-27 09:27:59,539 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf → 5个分片
+2026-06-27 09:27:59,957 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt → 6个分片
+2026-06-27 09:28:00,625 - agent - INFO - vector_store.py:168 - [加载知识库][service]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt → 6个分片
+2026-06-27 09:28:01,117 - agent - INFO - vector_store.py:168 - [加载知识库][health]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt → 7个分片
+2026-06-27 09:28:01,643 - agent - INFO - vector_store.py:168 - [加载知识库][platform]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt → 7个分片
+2026-06-27 09:28:33,892 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:28:34,312 - agent - INFO - rag_service.py:50 - [RagService]检索'养老服务库'：query='如何预约居家服务'，返回3条
+2026-06-27 09:28:34,723 - agent - INFO - rag_service.py:50 - [RagService]检索'健康科普库'：query='高血压饮食注意'，返回3条
+2026-06-27 09:29:15,411 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:29:15,888 - agent - INFO - rag_service.py:50 - [RagService]检索'养老服务库'：query='如何预约居家服务'，返回3条
+2026-06-27 09:29:37,211 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:36:23,538 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:36:23,540 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:36:23,540 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:36:23,541 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:36:23,542 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:36:23,542 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:36:23,542 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:36:23,543 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:36:23,543 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:36:23,543 - agent - INFO - app.py:60 - [startup]知识库加载完成
+2026-06-27 09:38:43,392 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 09:38:43,393 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:38:43,393 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 09:38:43,394 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 09:38:43,394 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 09:38:43,395 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 09:38:43,396 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 09:38:43,396 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 09:38:43,396 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 09:38:43,396 - agent - INFO - app.py:60 - [startup]知识库加载完成
+2026-06-27 09:38:43,566 - agent - INFO - app.py:118 - [API]收到提问：how to bind... session=default
+2026-06-27 09:38:43,566 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：how to bind...
+2026-06-27 09:38:43,944 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='how to bind'，返回3条
+2026-06-27 09:38:44,350 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='how to bind'，返回3条
+2026-06-27 09:38:44,350 - agent - INFO - app.py:156 - [QA日志]id=7a588d7235d8 intent=general kb=platform
+2026-06-27 09:55:46,192 - agent - WARNING - react_agent.py:37 - [ReactAgent] create_react_agent 不可用，Agent 模式已禁用，ChatService 仍可正常使用
+2026-06-27 09:56:00,901 - agent - WARNING - react_agent.py:37 - [ReactAgent] create_react_agent 不可用，Agent 模式已禁用，ChatService 仍可正常使用
+2026-06-27 09:56:01,831 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf → 11个分片
+2026-06-27 09:56:02,591 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf → 9个分片
+2026-06-27 09:56:03,247 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf → 8个分片
+2026-06-27 09:56:04,040 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf → 7个分片
+2026-06-27 09:56:04,494 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf → 5个分片
+2026-06-27 09:56:04,976 - agent - INFO - vector_store.py:168 - [加载知识库][policy]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt → 6个分片
+2026-06-27 09:56:05,271 - agent - INFO - vector_store.py:168 - [加载知识库][service]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt → 6个分片
+2026-06-27 09:56:05,901 - agent - INFO - vector_store.py:168 - [加载知识库][health]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt → 7个分片
+2026-06-27 09:56:06,325 - agent - INFO - vector_store.py:168 - [加载知识库][platform]加载成功：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt → 7个分片
+2026-06-27 09:56:06,326 - agent - INFO - app.py:60 - [startup]知识库加载完成
+2026-06-27 09:56:23,726 - agent - INFO - app.py:118 - [API]收到提问：hi... session=vue-1782525383721
+2026-06-27 09:56:23,726 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：hi...
+2026-06-27 09:56:25,324 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='hi'，返回3条
+2026-06-27 09:56:25,564 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='hi'，返回3条
+2026-06-27 09:56:25,564 - agent - INFO - app.py:156 - [QA日志]id=d560315c0d4b intent=general kb=platform
+2026-06-27 09:56:31,199 - agent - INFO - app.py:118 - [API]收到提问：如何合并绑定老人的北京养老卡？... session=vue-1782525391196
+2026-06-27 09:56:31,199 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何合并绑定老人的北京养老卡？...
+2026-06-27 09:56:31,344 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:56:31,587 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:56:31,587 - agent - INFO - app.py:156 - [QA日志]id=83cbc61b5ff3 intent=general kb=platform
+2026-06-27 09:56:54,801 - agent - INFO - app.py:118 - [API]收到提问：养老消费券怎样提现和抵扣？... session=vue-1782525414798
+2026-06-27 09:56:54,802 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：养老消费券怎样提现和抵扣？...
+2026-06-27 09:56:55,074 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='养老消费券怎样提现和抵扣？'，返回3条
+2026-06-27 09:56:55,314 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='养老消费券怎样提现和抵扣？'，返回3条
+2026-06-27 09:56:55,315 - agent - INFO - app.py:156 - [QA日志]id=c9b3fdf5d5e6 intent=general kb=platform
+2026-06-27 09:57:13,570 - agent - INFO - app.py:118 - [API]收到提问：关于《2026年本市调整高龄老人津贴发放实施细则》，我适合办理吗？具体可以申领到多少钱，去哪里办？... session=vue-1782525433567
+2026-06-27 09:57:13,570 - agent - INFO - chat_service.py:124 - [policy_flow]处理政策类问题：关于《2026年本市调整高龄老人津贴发放实施细则》，我适合办理吗？具体可以申领到多少钱，去哪里办？...
+2026-06-27 09:57:13,886 - agent - INFO - rag_service.py:50 - [RagService]检索'政策法规库'：query='关于《2026年本市调整高龄老人津贴发放实施细则》，我适合办理吗？具体可以申领到多少钱，去哪里办？'，返回3条
+2026-06-27 09:57:14,170 - agent - INFO - rag_service.py:50 - [RagService]检索'政策法规库'：query='关于《2026年本市调整高龄老人津贴发放实施细则》，我适合办理吗？具体可以申领到多少钱，去哪里办？'，返回3条
+2026-06-27 09:57:14,171 - agent - INFO - app.py:156 - [QA日志]id=146ef2bb0785 intent=policy kb=policy
+2026-06-27 09:59:09,985 - agent - INFO - app.py:118 - [API]收到提问：如何合并绑定老人的北京养老卡？... session=vue-1782525549982
+2026-06-27 09:59:09,985 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何合并绑定老人的北京养老卡？...
+2026-06-27 09:59:10,158 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:59:10,322 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 09:59:10,323 - agent - INFO - app.py:156 - [QA日志]id=40a89b975d46 intent=general kb=platform
+2026-06-27 09:59:14,974 - agent - INFO - app.py:118 - [API]收到提问：养老消费券怎样提现和抵扣？... session=vue-1782525554972
+2026-06-27 09:59:14,974 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：养老消费券怎样提现和抵扣？...
+2026-06-27 09:59:15,150 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='养老消费券怎样提现和抵扣？'，返回3条
+2026-06-27 09:59:15,293 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='养老消费券怎样提现和抵扣？'，返回3条
+2026-06-27 09:59:15,293 - agent - INFO - app.py:156 - [QA日志]id=7af3ca37486e intent=general kb=platform
+2026-06-27 09:59:42,175 - agent - INFO - app.py:118 - [API]收到提问：关于《关于长期护理保险(长护险)全城无障碍评估申报指南》，我适合办理吗？具体可以申领到多少钱，去哪里办？... session=vue-1782525582172
+2026-06-27 09:59:42,176 - agent - INFO - chat_service.py:159 - [health_flow]处理健康类问题：关于《关于长期护理保险(长护险)全城无障碍评估申报指南》，我适合办理吗？具体可以申领到多少钱，去哪里...
+2026-06-27 09:59:42,310 - agent - INFO - rag_service.py:50 - [RagService]检索'健康科普库'：query='关于《关于长期护理保险(长护险)全城无障碍评估申报指南》，我适合办理吗？具体可以申领到多少钱，去哪里办？'，返回3条
+2026-06-27 09:59:42,569 - agent - INFO - rag_service.py:50 - [RagService]检索'健康科普库'：query='关于《关于长期护理保险(长护险)全城无障碍评估申报指南》，我适合办理吗？具体可以申领到多少钱，去哪里办？'，返回3条
+2026-06-27 09:59:42,569 - agent - INFO - app.py:156 - [QA日志]id=895abe86a91b intent=health kb=health
+2026-06-27 10:01:35,775 - agent - WARNING - react_agent.py:37 - [ReactAgent] create_react_agent 不可用，Agent 模式已禁用，ChatService 仍可正常使用
+2026-06-27 10:02:19,473 - agent - WARNING - react_agent.py:37 - [ReactAgent] create_react_agent 不可用，Agent 模式已禁用，ChatService 仍可正常使用
+2026-06-27 10:02:19,499 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 10:02:19,510 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 10:02:19,511 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 10:02:19,511 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 10:02:19,512 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 10:02:19,512 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 10:02:19,512 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 10:02:19,513 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 10:02:19,513 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 10:02:19,513 - agent - INFO - app.py:60 - [startup]知识库加载完成
+2026-06-27 10:02:21,691 - agent - INFO - app.py:118 - [API]收到提问：如何绑定老人的北京养老卡... session=default
+2026-06-27 10:02:21,691 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何绑定老人的北京养老卡...
+2026-06-27 10:02:21,923 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何绑定老人的北京养老卡'，返回3条
+2026-06-27 10:02:22,186 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何绑定老人的北京养老卡'，返回3条
+2026-06-27 10:02:22,186 - agent - INFO - app.py:156 - [QA日志]id=95137950f4a7 intent=general kb=platform
+2026-06-27 10:03:41,168 - agent - WARNING - react_agent.py:37 - [ReactAgent] create_react_agent 不可用，Agent 模式已禁用，ChatService 仍可正常使用
+2026-06-27 10:03:41,192 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf
+2026-06-27 10:03:41,192 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 10:03:41,193 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部 税务总局 金融监管总局 中国证监会关于领取个人养老金有关　问题的通知__2025年第26号国务院公报_中国政府网.pdf
+2026-06-27 10:03:41,194 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf
+2026-06-27 10:03:41,194 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf
+2026-06-27 10:03:41,195 - agent - INFO - vector_store.py:149 - [加载知识库][policy]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/policy\养老政策法规汇编.txt
+2026-06-27 10:03:41,195 - agent - INFO - vector_store.py:149 - [加载知识库][service]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/service\养老服务项目手册.txt
+2026-06-27 10:03:41,195 - agent - INFO - vector_store.py:149 - [加载知识库][health]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/health\老年健康科普手册.txt
+2026-06-27 10:03:41,196 - agent - INFO - vector_store.py:149 - [加载知识库][platform]文件已存在，跳过：C:\Users\x\Desktop\新建文件夹\homework\retire-rag\aircondition_rag\data/platform\平台操作指南.txt
+2026-06-27 10:03:41,196 - agent - INFO - app.py:60 - [startup]知识库加载完成
+2026-06-27 10:03:52,070 - agent - INFO - app.py:118 - [API]收到提问：如何合并绑定老人的北京养老卡？... session=vue-1782525832066
+2026-06-27 10:03:52,071 - agent - INFO - chat_service.py:176 - [general_flow]处理通用问题：如何合并绑定老人的北京养老卡？...
+2026-06-27 10:03:52,434 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 10:03:52,592 - agent - INFO - rag_service.py:50 - [RagService]检索'平台操作库'：query='如何合并绑定老人的北京养老卡？'，返回3条
+2026-06-27 10:03:52,592 - agent - INFO - app.py:156 - [QA日志]id=66f1cd669449 intent=general kb=platform

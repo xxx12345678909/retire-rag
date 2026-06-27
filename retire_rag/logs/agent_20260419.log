@@ -1,0 +1,35 @@
+2026-04-19 10:31:27,012 - agent - INFO - agent_tools.py:34 - [rag_summarize]成功检索到关于'小户型适合的扫地机器人推荐'的资料
+2026-04-19 10:31:34,634 - agent - INFO - agent_tools.py:34 - [rag_summarize]成功检索到关于'小户型扫地机器人选购要点 特点'的资料
+2026-04-19 10:31:49,719 - agent - INFO - agent_tools.py:34 - [rag_summarize]成功检索到关于'扫地机器人原地转圈 故障排查'的资料
+2026-04-19 10:32:08,227 - agent - INFO - agent_tools.py:34 - [rag_summarize]成功检索到关于'扫地机器人维护保养'的资料
+2026-04-19 10:32:21,521 - agent - INFO - agent_tools.py:34 - [rag_summarize]成功检索到关于'扫拖一体机器人和普通扫地机器人的区别'的资料
+2026-04-19 10:55:27,524 - agent - INFO - vector_store.py:99 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\扫地机器人100问.pdf 内容加载成功
+2026-04-19 10:55:30,709 - agent - INFO - vector_store.py:99 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\扫地机器人100问2.txt 内容加载成功
+2026-04-19 10:55:33,701 - agent - INFO - vector_store.py:99 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\扫拖一体机器人100问.txt 内容加载成功
+2026-04-19 10:55:40,011 - agent - INFO - vector_store.py:99 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\故障排除.txt 内容加载成功
+2026-04-19 10:55:43,074 - agent - INFO - vector_store.py:99 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\维护保养.txt 内容加载成功
+2026-04-19 10:55:46,758 - agent - INFO - vector_store.py:99 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\选购指南.txt 内容加载成功
+2026-04-19 10:58:34,621 - agent - INFO - vector_store.py:77 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\扫地机器人100问.pdf内容已经存在知识库内，跳过
+2026-04-19 10:58:34,622 - agent - INFO - vector_store.py:77 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\扫地机器人100问2.txt内容已经存在知识库内，跳过
+2026-04-19 10:58:34,623 - agent - INFO - vector_store.py:77 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\扫拖一体机器人100问.txt内容已经存在知识库内，跳过
+2026-04-19 10:58:34,623 - agent - INFO - vector_store.py:77 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\故障排除.txt内容已经存在知识库内，跳过
+2026-04-19 10:58:34,624 - agent - INFO - vector_store.py:77 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\维护保养.txt内容已经存在知识库内，跳过
+2026-04-19 10:58:34,624 - agent - INFO - vector_store.py:77 - [加载知识库]C:\Users\x\Desktop\新建文件夹\homework\LangChain-ReAct-Agent\data\选购指南.txt内容已经存在知识库内，跳过
+2026-04-19 11:07:07,543 - agent - INFO - agent_tools.py:37 - [rag_retrieve]成功检索到 3 条资料
+2026-04-19 11:18:55,154 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 11:52:39,073 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 11:55:04,681 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:32:25,526 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:32:59,972 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:33:22,785 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:43:01,302 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:43:14,631 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:43:28,733 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:45:57,822 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:46:00,670 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:57:23,466 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:57:25,089 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:58:04,608 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 12:59:29,929 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 13:04:43,840 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料
+2026-04-19 13:17:25,298 - agent - INFO - agent_tools.py:34 - [rag_retrieve]成功检索相关资料

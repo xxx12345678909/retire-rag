@@ -1,0 +1,27 @@
+# 向量库配置 - 4个养老知识库
+collections:
+  policy:
+    name: retire_policy
+    data_path: data/policy
+    description: 政策法规库
+  service:
+    name: retire_service
+    data_path: data/service
+    description: 养老服务库
+  health:
+    name: retire_health
+    data_path: data/health
+    description: 健康科普库
+  platform:
+    name: retire_platform
+    data_path: data/platform
+    description: 平台操作库
+
+persist_directory: chroma_db
+k: 3
+md5_hex_store: md5.txt
+allow_knowledge_file_type: ["txt", "pdf"]
+
+chunk_size: 300
+chunk_overlap: 50
+separators: ["\n\n", "\n", "。", ".", "?", "？", "!", "！", " ", ""]
