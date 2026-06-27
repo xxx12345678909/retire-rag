@@ -167,7 +167,7 @@
                             <span @click="switchTab('policy')" class="text-xs text-blue-600 hover:underline cursor-pointer">查看全部政策大厅 →</span>
                         </div>
                         <div class="space-y-4">
-                            <div v-for="policy in policies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.name)">
+                            <div v-for="policy in policies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.title || policy.name)">
                                 <div class="flex justify-between text-xs text-slate-400 mb-1">
                                     <span>类别: {{ policy.cat }}</span>
                                     <span>{{ policy.date }}</span>
@@ -420,7 +420,7 @@
                                     <h4 class="font-extrabold text-sm mb-1" :class="isSeniorMode ? 'text-xl' : ''">{{ policy.name }}</h4>
                                     <p class="text-xs text-slate-500 mb-3" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
                                     <div class="flex flex-wrap gap-2">
-                                        <button @click="consultPolicy(policy.name)" class="text-xs bg-white border border-blue-500 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-50 transition-all">
+                                        <button @click="consultPolicy(policy.title || policy.name)" class="text-xs bg-white border border-blue-500 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-50 transition-all">
                                             🔍 政策智能匹配
                                         </button>
                                     </div>
