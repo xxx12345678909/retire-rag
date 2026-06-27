@@ -147,9 +147,8 @@
 
     async function loadProfile() {
         try {
-            var res = await authFetch('/api/auth/me');
-            if (!res) return;
-            var user = await res.json();
+            var user = await authFetch('/api/auth/me');
+            if (!user) return;
             document.getElementById('profile-username').textContent = user.username || '-';
             document.getElementById('profile-phone').textContent = user.phone || '-';
             if (user.username) {
@@ -176,24 +175,16 @@
         }
 
         try {
-            var res = await authFetch('/api/user/family-bind', {
+            var data = await authFetch('/api/user/family-bind', {
                 method: 'POST',
                 body: JSON.stringify({ name: name, id_card: idcard, relation: relation })
             });
-            if (!res) return;
-            var data = await res.json();
-            if (res.ok) {
-                msgEl.textContent = data.message || '绑定成功';
-                msgEl.className = 'text-xs mt-3 text-emerald-600';
-                msgEl.classList.remove('hidden');
-                document.getElementById('family-bind-form').reset();
-                loadFamilyMembers();
-                showToast('家属绑定成功');
-            } else {
-                msgEl.textContent = data.error || data.detail || '绑定失败';
-                msgEl.className = 'text-xs mt-3 text-red-500';
-                msgEl.classList.remove('hidden');
-            }
+            msgEl.textContent = '绑定成功';
+            msgEl.className = 'text-xs mt-3 text-emerald-600';
+            msgEl.classList.remove('hidden');
+            document.getElementById('family-bind-form').reset();
+            loadFamilyMembers();
+            showToast('家属绑定成功');
         } catch (err) {
             msgEl.textContent = '网络错误，请稍后重试';
             msgEl.className = 'text-xs mt-3 text-red-500';
@@ -206,11 +197,9 @@
         var emptyEl = document.getElementById('family-empty');
 
         try {
-            var res = await authFetch('/api/user/family');
-            if (!res) return;
-            var data = await res.json();
-
-            var members = Array.isArray(data) ? data : (data.members || []);
+            var data = await authFetch('/api/user/family');
+            if (!data) return;
+            var members = Array.isArray(data) ? data : (data.members || data.data || []);
 
             if (members.length === 0) {
                 listEl.innerHTML = '';
@@ -242,10 +231,8 @@
         var emptyEl = document.getElementById('orders-empty');
 
         try {
-            var res = await authFetch('/api/services/orders?limit=5');
-            if (!res) return;
-            var data = await res.json();
-
+            var data = await authFetch('/api/services/orders?limit=5');
+            if (!data) return;
             var orders = Array.isArray(data) ? data : (data.orders || data.data || []);
 
             if (orders.length === 0) {

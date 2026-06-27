@@ -46,20 +46,28 @@ async function authFetch(url, options = {}) {
     const token = getToken();
     if (!token) {
         window.location.href = 'login.html';
-        return;
+        throw new Error('未登录');
     }
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
         ...(options.headers || {})
     };
+    if (options.body && typeof options.body === 'string') {
+        // 已经是 JSON 字符串，直接传（不再嵌套 stringify）
+    }
     const res = await fetch(`${API_BASE}${url}`, { ...options, headers });
     if (res.status === 401) {
         localStorage.removeItem('auth_token');
         window.location.href = 'login.html';
-        return;
+        throw new Error('登录已过期');
     }
-    return res;
+    let data;
+    try { data = await res.json(); } catch(e) { data = null; }
+    if (!res.ok) {
+        throw new Error((data && (data.error || data.detail)) || `请求失败 (${res.status})`);
+    }
+    return data;
 }
 
 // ============================================================

@@ -141,7 +141,13 @@
             opts = opts || {};
             opts.headers = opts.headers || {};
             opts.headers['Authorization'] = 'Bearer ' + getToken();
-            return fetch(url, opts).then(function(r) { return r.json(); });
+            return fetch(url, opts).then(function(r) {
+                if (r.status === 401) { logout(); throw new Error('请重新登录'); }
+                return r.json().catch(function() { return null; }).then(function(d) {
+                    if (!r.ok) throw new Error((d && d.error) || '请求失败 (' + r.status + ')');
+                    return d;
+                });
+            });
         }
 
         // === DOM Refs ===
