@@ -11,6 +11,9 @@
 <div id="navbar"></div>
 <div class="max-w-6xl mx-auto px-4 py-6">
   <!-- 权限检查 -->
+  <div id="loading" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
+    <p class="text-slate-400">验证管理员权限...</p>
+  </div>
   <div id="no-access" class="hidden bg-red-50 border border-red-200 rounded-xl p-8 text-center">
     <p class="text-red-600 font-bold text-lg">🔒 需要管理员权限</p>
     <p class="text-red-500 text-sm mt-2">请使用管理员账号登录</p>
@@ -99,22 +102,23 @@ const API_BASE = 'http://localhost:8000';
 // 权限检查
 async function checkAdmin() {
   var token = localStorage.getItem('auth_token');
-  if (!token) { document.getElementById('no-access').classList.remove('hidden'); return false; }
-  try {
-    var user = JSON.parse(atob(token).split(':').slice(1, 3).join(':'));
-    if (user && user.role === 'admin') {
-      document.getElementById('admin-content').classList.remove('hidden');
-      return true;
-    }
-  } catch(e) {}
-  // 尝试 API 验证
+  if (!token) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('no-access').classList.remove('hidden');
+    return false;
+  }
+  // API 验证角色
   try {
     var u = await authFetch('/api/auth/me');
     if (u && u.role === 'admin') {
+      document.getElementById('loading').classList.add('hidden');
       document.getElementById('admin-content').classList.remove('hidden');
       return true;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error('checkAdmin error:', e);
+  }
+  document.getElementById('loading').classList.add('hidden');
   document.getElementById('no-access').classList.remove('hidden');
   return false;
 }
