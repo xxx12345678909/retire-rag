@@ -101,7 +101,7 @@ function renderNavbar() {
     const container = document.getElementById('navbar');
     if (!container) return;
 
-    const currentPage = window.location.pathname.split('/').pop();
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
     container.innerHTML = `
         <header class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40 py-4">
