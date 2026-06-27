@@ -307,6 +307,7 @@ async function loadSOS() {
     }
     lastSOSCount = alerts.length;
     var html = '';
+    alerts.forEach(function(a) {
       html += '<tr class="border-b border-slate-50 hover:bg-red-50">' +
         '<td class="py-2 pr-2 text-xs font-bold text-red-600">' + (a.username || '匿名') + '</td>' +
         '<td class="py-2 pr-2 text-xs font-bold text-red-500">' + (a.phone || '-') + '</td>' +
