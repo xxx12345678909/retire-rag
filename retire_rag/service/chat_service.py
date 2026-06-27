@@ -6,6 +6,7 @@ ChatService — 智慧养老AI助手业务大脑
 
 from rag.rag_service import rag_service
 from rag.query_expander import query_expander
+from rag.profile_extractor import profile_extractor
 from utils.logger_handler import logger
 
 
@@ -121,14 +122,19 @@ class ChatService:
     # ── 业务流 ───────────────────────────────────
 
     def policy_flow(self, query: str) -> dict:
-        """政策匹配流：关键词扩展 + 多路RAG检索政策库"""
+        """政策匹配流：提取画像 + 关键词扩展 + RAG检索 + 条件匹配"""
         logger.info(f"[policy_flow]处理政策类问题：{query[:50]}...")
 
+        # 1. 提取用户画像（年龄/户籍/社保/特殊群体）
+        profile = profile_extractor.extract(query)
+
+        # 2. 关键词扩展 + 多路RAG检索
         expanded = query_expander.expand(query)
         context, docs = rag_service.multi_retrieve_context(expanded, kb="policy")
         sources = rag_service.get_sources(docs)
 
-        answer = self._assemble_policy_answer(query, context, docs)
+        # 3. 画像驱动的条件匹配回答
+        answer = self._assemble_policy_answer(query, context, docs, profile)
 
         return {
             "answer": answer,
@@ -202,8 +208,14 @@ class ChatService:
 
     # ── 回答拼装（模板化，后续可接LLM生成） ─────
 
-    def _assemble_policy_answer(self, query: str, context: str, docs: list) -> str:
-        """组装政策类回答"""
+    def _assemble_policy_answer(self, query: str, context: str, docs: list,
+                                 profile: dict = None) -> str:
+        """组装政策类回答 — 画像驱动的条件匹配
+
+        当提取到用户画像（年龄/户籍/社保）时，调用 LLM 将画像条件
+        与检索到的政策文档做匹配，输出个性化的福利匹配结果。
+        无画像时回退到模板化展示。
+        """
         if not docs or "未找到" in context:
             return (
                 f"关于「{query}」，我目前的知识库中暂时没有找到对应的政策信息。\n\n"
@@ -213,10 +225,20 @@ class ChatService:
                 "3. 访问当地人社局官网查询最新政策"
             )
 
-        # 简单模板组装（后续接LLM生成更好）
+        profile = profile or {}
+        has_profile = any(v is not None for v in profile.values())
+
+        if not has_profile:
+            # 无画像 → 模板化展示
+            return self._build_generic_policy_answer(docs)
+
+        # 有画像 → LLM 条件匹配
+        return self._build_matched_policy_answer(query, context, profile)
+
+    def _build_generic_policy_answer(self, docs: list) -> str:
+        """无画像时的通用政策展示"""
         lines = ["根据知识库中的政策信息，为您整理如下：\n"]
         for i, doc in enumerate(docs, 1):
-            src = doc.metadata.get("source", "参考文档")
             lines.append(f"{i}. {doc.page_content[:300]}")
         lines.append("\n📋 参考来源：")
         seen = set()
@@ -225,8 +247,48 @@ class ChatService:
             if src not in seen:
                 seen.add(src)
                 lines.append(f"  - {src}")
-
         return "\n".join(lines)
+
+    def _build_matched_policy_answer(self, query: str, context: str,
+                                      profile: dict) -> str:
+        """画像驱动的条件匹配回答"""
+        profile_text = []
+        age = profile.get("age")
+        household = profile.get("household")
+        ss = profile.get("social_security")
+        sg = profile.get("special_group")
+
+        if age: profile_text.append(f"年龄：{age}岁")
+        if household: profile_text.append(f"户籍：{household}")
+        if ss is not None: profile_text.append(f"社保：{'有' if ss else '无'}")
+        if sg: profile_text.append(f"特殊群体：{sg}")
+
+        prompt = f"""你是养老政策匹配专家。根据用户信息和政策文档，完成以下任务：
+
+## 用户信息
+{chr(10).join(profile_text) if profile_text else '未提供详细信息'}
+原始问题：{query}
+
+## 政策文档
+{context[:3000]}
+
+## 任务
+1. 从政策文档中找出该用户**明确符合条件**的福利项目
+2. 列出每个项目的：福利名称、申领条件对照、具体金额/标准、申请所需材料
+3. 如果用户年龄/户籍/社保信息与某条政策无关，不要列出
+4. 如果某条政策用户明显不符合（如70岁才能申领但用户65岁），说明"暂不符合，xx年后可申请"
+5. 用温暖、易懂的语言，避免堆砌专业术语
+
+只在回答末尾列出参考文档名，格式：📋 参考来源：\n- 文档名"""
+
+        try:
+            from langchain_core.messages import HumanMessage
+            from model.factory import chat_model
+            resp = chat_model.invoke([HumanMessage(content=prompt)])
+            return resp.content.strip()
+        except Exception as e:
+            logger.warning(f"[policy匹配]LLM调用失败，回退模板：{str(e)}")
+            return context[:1500]
 
     def _assemble_service_answer(self, query: str, context: str, docs: list) -> str:
         """组装服务类回答"""
