@@ -40,7 +40,7 @@ def _patched_version(package_name: str) -> str:
 _importlib_metadata.version = _patched_version
 # ──────────────────────────────────────────────
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -48,10 +48,25 @@ from pydantic import BaseModel
 
 from service.chat_service import chat_service
 from service import persist
+from service import booking_service
+from service.institution_db import search_institutions, get_all_districts
 from agent.react_agent import agent as react_agent
 from utils.config_handler import chroma_conf
 from utils.logger_handler import logger
 from utils.debug import Trace, runtime, DEBUG
+from auth.auth_routes import router as auth_router
+from auth.auth_service import get_user_by_token, init_db
+from service.user_service import init_db as init_user_db, bind_family, get_family
+from service.health_service import init_db as init_health_db, get_profile, upsert_profile
+
+
+async def get_current_user(request: Request):
+    """从 Authorization 头提取 token 并返回用户信息，未认证返回 None"""
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return None
+    token = auth[len("Bearer "):]
+    return get_user_by_token(token)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -78,6 +93,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
+
+# 启动时初始化认证数据库 + 预约数据库 + 用户/健康档案数据库
+@app.on_event("startup")
+async def startup_auth():
+    init_db()
+    booking_service.init_db()
+    init_user_db()
+    init_health_db()
 
 
 # ═══════════════════════════════════════════════════════
@@ -191,12 +216,15 @@ async def kb_stats():
 async def upload_document(
     file: UploadFile = File(...),
     kb: str = Form("platform"),  # policy/service/health/platform
+    current_user: dict = Depends(get_current_user),
 ):
     """上传文档到指定知识库
 
     支持格式：PDF, TXT
     上传后自动分块、向量化、写入对应Chroma集合
     """
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     if file.filename is None:
         return JSONResponse({"error": "文件名不能为空"}, status_code=400)
 
@@ -251,12 +279,17 @@ async def upload_document(
 # ═══════════════════════════════════════════════════════
 
 @app.get("/admin/kb/reload")
-async def reload_knowledge_base(kb: str = None):
+async def reload_knowledge_base(
+    kb: str = None,
+    current_user: dict = Depends(get_current_user),
+):
     """重新加载知识库数据（扫描data目录并向量化）
 
     访问方式：浏览器打开 http://127.0.0.1:8000/admin/kb/reload
     或指定KB：http://127.0.0.1:8000/admin/kb/reload?kb=policy
     """
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     from rag.vector_store import VectorStoreService
     vs = VectorStoreService()
     try:
@@ -275,15 +308,26 @@ async def reload_knowledge_base(kb: str = None):
 
 
 @app.get("/admin/logs")
-async def get_logs(limit: int = 50, kb: str = None):
+async def get_logs(
+    limit: int = 50,
+    kb: str = None,
+    current_user: dict = Depends(get_current_user),
+):
     """获取问答日志（SQLite 持久化）"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     logs = persist.get_qa_logs(limit=limit, kb=kb)
     return {"data": logs, "total": len(logs)}
 
 
 @app.post("/admin/logs/feedback")
-async def submit_feedback(fb: FeedbackRequest):
+async def submit_feedback(
+    fb: FeedbackRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """提交回答质量反馈"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     ok = persist.update_feedback(fb.log_id, fb.score, fb.comment)
     if ok:
         logger.info(f"[admin]反馈已记录：log_id={fb.log_id} score={fb.score}")
@@ -292,16 +336,283 @@ async def submit_feedback(fb: FeedbackRequest):
 
 
 @app.get("/admin/kb/chunk-config")
-async def get_chunk_cfg():
+async def get_chunk_cfg(current_user: dict = Depends(get_current_user)):
     """获取分片配置"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     return {"data": persist.get_chunk_config()}
 
 
 @app.put("/admin/kb/chunk-config")
-async def update_chunk_cfg(key: str, value: str):
+async def update_chunk_cfg(
+    key: str,
+    value: str,
+    current_user: dict = Depends(get_current_user),
+):
     """更新分片配置"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     persist.save_chunk_config(key, value)
     return {"message": "配置已更新", "key": key, "value": value}
+
+
+# ═══════════════════════════════════════════════════════
+# 养老机构查询 API
+# ═══════════════════════════════════════════════════════
+
+@app.get("/admin/institutions")
+async def get_institutions(
+    district: str = None,
+    care_level: str = None,
+    price_max: int = None,
+    limit: int = 20,
+):
+    """查询养老机构列表，支持按区域/护理等级/价格筛选"""
+    all_results = search_institutions(
+        district=district,
+        care_level=care_level,
+        price_max=price_max,
+        limit=9999,
+    )
+    total = len(all_results)
+    data = all_results[:limit]
+    return {"data": data, "total": total}
+
+
+@app.get("/api/institutions/districts")
+async def institution_districts():
+    """获取所有养老机构所在区域"""
+    districts = get_all_districts()
+    return {"data": districts}
+
+
+# ═══════════════════════════════════════════════════════
+# 养老服务预约 API
+# ═══════════════════════════════════════════════════════
+
+class BookingRequest(BaseModel):
+    service_id: int = 0
+    service_key: str = ""
+    date: str
+    time_slot: str
+    notes: str = ""
+
+
+@app.get("/api/services")
+async def list_services():
+    """获取所有可预约服务项"""
+    services = booking_service.get_all_services()
+    return {"data": services}
+
+
+@app.post("/api/services/book")
+async def book_service(
+    req: BookingRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """预约服务（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+
+    # 支持 service_key（前端字符串ID）映射到 service_id
+    service_id = req.service_id
+    if not service_id and req.service_key:
+        svc = booking_service.get_service_by_key(req.service_key)
+        if svc:
+            service_id = svc["id"]
+    if not service_id:
+        return JSONResponse({"error": "请指定服务类型"}, status_code=400)
+
+    result = booking_service.create_booking(
+        user_id=current_user["id"],
+        service_id=service_id,
+        date=req.date,
+        time_slot=req.time_slot,
+        notes=req.notes or None,
+    )
+    if not result.get("ok"):
+        return JSONResponse({"error": result.get("error", "预约失败")}, status_code=400)
+
+    return {"message": "预约成功", "booking_id": result["booking_id"]}
+
+
+@app.get("/api/services/orders")
+async def list_user_bookings(
+    limit: int = 20,
+    current_user: dict = Depends(get_current_user),
+):
+    """获取当前用户的预约记录（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+
+    bookings = booking_service.get_user_bookings(
+        user_id=current_user["id"],
+        limit=limit,
+    )
+    return {"data": bookings}
+
+
+# ═══════════════════════════════════════════════════════
+# 用户档案与家庭绑定 API
+# ═══════════════════════════════════════════════════════
+
+class FamilyBindRequest(BaseModel):
+    name: str
+    id_card: str
+    relation: str
+    notes: str = ""
+
+
+class HealthProfileRequest(BaseModel):
+    elder_name: str
+    age: int
+    chronic_diseases: str = ""
+    medications: str = ""
+    notes: str = ""
+
+
+@app.get("/api/user/profile")
+async def user_profile(current_user: dict = Depends(get_current_user)):
+    """获取当前用户信息（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+    return {"data": current_user}
+
+
+@app.post("/api/user/family-bind")
+async def family_bind(
+    req: FamilyBindRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """绑定家庭成员（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+    member = bind_family(
+        user_id=current_user["id"],
+        name=req.name,
+        id_card=req.id_card,
+        relation=req.relation,
+        notes=req.notes,
+    )
+    return {"message": "绑定成功", "data": member}
+
+
+@app.get("/api/user/family")
+async def family_list(current_user: dict = Depends(get_current_user)):
+    """获取当前用户的家庭成员列表（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+    members = get_family(user_id=current_user["id"])
+    return {"data": members}
+
+
+@app.get("/api/health/profile")
+async def health_profile(current_user: dict = Depends(get_current_user)):
+    """获取当前用户的健康档案（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+    profile = get_profile(user_id=current_user["id"])
+    if profile is None:
+        return JSONResponse({"error": "健康档案不存在"}, status_code=404)
+    return {"data": profile}
+
+
+@app.put("/api/health/profile")
+async def health_profile_update(
+    req: HealthProfileRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """创建或更新健康档案（需登录）"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+    profile = upsert_profile(
+        user_id=current_user["id"],
+        elder_name=req.elder_name,
+        age=req.age,
+        chronic_diseases=req.chronic_diseases,
+        medications=req.medications,
+        notes=req.notes,
+    )
+    return {"message": "保存成功", "data": profile}
+
+
+
+# ═══════════════════════════════════════════════════════
+# 政策大厅 API
+# ═══════════════════════════════════════════════════════
+
+
+@app.get("/api/policy/list")
+async def policy_list():
+    """政策大厅：按分类返回政策列表（静态数据，基于 data/policy/ 实际文件）"""
+    return {
+        "categories": [
+            {
+                "name": "高龄津贴",
+                "icon": "💰",
+                "policies": [
+                    {
+                        "title": "高龄老人津贴发放实施细则（2026版）",
+                        "summary": "凡具有本市户籍、年满70周岁及以上的老年人，均可申请高龄老人津贴。津贴标准按年龄段分档发放，70-79周岁每人每月100元，80-89周岁每人每月200元，90-99周岁每人每月300元，100周岁及以上每人每月500元。",
+                        "source": "养老政策法规汇编.txt",
+                    },
+                ],
+            },
+            {
+                "name": "养老服务补贴",
+                "icon": "🏠",
+                "policies": [
+                    {
+                        "title": "居家养老服务补贴管理办法（2026版）",
+                        "summary": "对经济困难的失能、半失能老年人给予居家养老服务补贴，补贴标准根据老年人能力评估等级确定，轻度失能每人每月200元，中度失能每人每月400元，重度失能每人每月600元，用于购买助餐、助浴、助洁等居家养老服务。",
+                        "source": "养老政策法规汇编.txt",
+                    },
+                    {
+                        "title": "养老机构运营补贴实施细则",
+                        "summary": "对社会力量兴办的养老机构给予运营补贴，根据收住老年人能力评估等级和床位入住率给予差异化补贴，每床每月补贴200-500元，鼓励养老机构提升服务质量和管理水平。",
+                        "source": "养老政策法规汇编.txt",
+                    },
+                ],
+            },
+            {
+                "name": "养老金制度",
+                "icon": "📋",
+                "policies": [
+                    {
+                        "title": "关于2025年调整退休人员基本养老金的通知",
+                        "summary": "从2025年1月1日起调整企业和机关事业单位退休人员基本养老金水平，全国调整比例按2024年月人均基本养老金的5.2%确定，采取定额调整、挂钩调整与适当倾斜相结合的办法。",
+                        "source": "人力资源社会保障部 财政部关于2025年调整退休人员基本养老金的通知_国务院部门文件_中国政府网.pdf",
+                    },
+                    {
+                        "title": "关于全面实施个人养老金制度的通知",
+                        "summary": "自2025年1月1日起在全国范围内全面实施个人养老金制度，参加人每年缴纳个人养老金额度上限为12000元，可享受税收优惠政策，个人养老金账户实行封闭运行。",
+                        "source": "人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于全面实施个人　养老金制度的通知__2025年第6号国务院公报_中国政府网.pdf",
+                    },
+                    {
+                        "title": "个人养老金领取有关问题通知",
+                        "summary": "明确个人养老金领取条件、领取方式和办理流程，参加人达到领取基本养老金年龄、完全丧失劳动能力、出国（境）定居等情形可领取个人养老金，可一次性或分期领取。",
+                        "source": "人力资源社会保障部 财政部 国家税务总局 金融监管总局 中国证监会关于领取个人养老金有关问题的通知_国务院部门文件_中国政府网.pdf",
+                    },
+                ],
+            },
+            {
+                "name": "长护险/失业险",
+                "icon": "🏥",
+                "policies": [
+                    {
+                        "title": "大龄领取失业保险金人员参加企业职工基本养老保险通知",
+                        "summary": "对领取失业保险金且距法定退休年龄不足1年的大龄失业人员，由失业保险基金按规定为其缴纳企业职工基本养老保险费，确保其养老保险缴费不中断，保障退休后的养老待遇。",
+                        "source": "人力资源社会保障部等三部门印发《关于大龄领取失业保险金人员参加企业职工基本养老保险有关问题的通知》_部门动态_中国政府网.pdf",
+                    },
+                    {
+                        "title": "长期护理保险试点实施办法（2026版）",
+                        "summary": "为长期失能人员的基本生活照料和与基本生活密切相关的医疗护理提供资金或服务保障，保障范围包括基本生活照料和与之密切相关的医疗护理，按失能等级确定待遇标准。",
+                        "source": "养老政策法规汇编.txt",
+                    },
+                ],
+            },
+        ],
+    }
 
 
 # ═══════════════════════════════════════════════════════
@@ -309,8 +620,10 @@ async def update_chunk_cfg(key: str, value: str):
 # ═══════════════════════════════════════════════════════
 
 @app.get("/admin/debug/stats")
-async def debug_stats():
+async def debug_stats(current_user: dict = Depends(get_current_user)):
     """运行时统计：LLM调用次数、缓存命中率、最近错误"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     from rag.rag_service import rag_service
     return {
         "runtime": runtime.snapshot(),
@@ -322,8 +635,13 @@ async def debug_stats():
 
 
 @app.post("/admin/debug/dry-run")
-async def debug_dry_run(req: ChatRequest):
+async def debug_dry_run(
+    req: ChatRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """空跑模式：只执行检索和意图识别，不调 LLM（用于测试 RAG 覆盖）"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     from rag.query_expander import query_expander
     from rag.rag_service import rag_service
 

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>居家服务预约 - 智慧养老云平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans SC', 'Inter', sans-serif; background-color: #f8fafc; }
+        .nav-btn { text-decoration: none; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+
+    <!-- Navbar rendered by shared.js -->
+    <div id="navbar"></div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- Page Title -->
+        <div class="text-center md:text-left">
+            <h1 class="text-3xl font-bold text-slate-800">居家服务预约</h1>
+            <p class="text-slate-500 mt-1">选择您需要的居家养老服务，轻松在线预约</p>
+        </div>
+
+        <!-- Service Cards Grid -->
+        <div id="service-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- My Orders Section -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list text-emerald-500"></i> 我的预约订单
+                </h2>
+                <button id="btn-refresh-orders" class="text-sm px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition-all border-0 cursor-pointer">
+                    <i class="fa-solid fa-rotate mr-1"></i>刷新
+                </button>
+            </div>
+            <div id="orders-container">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Booking Modal (hidden by default) -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-700">📋 预约服务</h3>
+                <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 text-xl border-0 bg-transparent cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="booking-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-500 mb-1">服务项目</label>
+                    <input type="text" id="service-name" readonly class="w-full border rounded-lg p-2.5 text-sm bg-slate-50 text-slate-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-500 mb-1">预约日期</label>
+                    <input type="date" id="service-date" required class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-500 mb-1">时间段</label>
+                    <select id="service-time-slot" required class="w-full border rounded-lg p-2.5 text-sm bg-white">
+                        <option value="上午">上午 (8:00-12:00)</option>
+                        <option value="下午">下午 (14:00-18:00)</option>
+                        <option value="全天">全天 (8:00-18:00)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-500 mb-1">备注</label>
+                    <textarea id="service-notes" rows="3" class="w-full border rounded-lg p-2.5 text-sm" placeholder="如有特殊需求请在此注明..."></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="btn-cancel-booking" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-all border-0 cursor-pointer">
+                        取消
+                    </button>
+                    <button type="submit" id="btn-submit-booking" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all border-0 cursor-pointer shadow-sm">
+                        确认预约
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Prompt Modal (hidden by default) -->
+    <div id="login-prompt-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl text-center">
+            <span class="text-5xl mb-3 block">🔐</span>
+            <h3 class="text-lg font-bold text-slate-700 mb-2">请先登录</h3>
+            <p class="text-sm text-slate-500 mb-6">您需要登录后才能预约服务，请先登录账号。</p>
+            <div class="flex gap-3">
+                <button id="btn-close-login-prompt" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-all border-0 cursor-pointer">
+                    稍后再说
+                </button>
+                <a href="产品原型.html" class="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all no-underline shadow-sm inline-block text-center">
+                    前往登录
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-3 rounded-full shadow-lg text-sm font-semibold hidden transition-all">
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // === Service Data ===
+        var services = [
+            { id: 'meal',    name: '助餐服务', icon: '🍽️',  desc: '营养配餐，送餐上门',   price: '¥25/次',  color: 'orange' },
+            { id: 'clean',   name: '助洁服务', icon: '🧹',  desc: '居室清洁，环境整理',   price: '¥40/次',  color: 'blue' },
+            { id: 'medical', name: '助医服务', icon: '🏥',  desc: '陪同就诊，取药挂号',   price: '¥80/次',  color: 'red' },
+            { id: 'care',    name: '陪护服务', icon: '👨‍⚕️', desc: '全天照护，生活协助',   price: '¥200/天', color: 'purple' },
+            { id: 'daycare', name: '日间照料', icon: '📅',  desc: '日间托管，活动丰富',   price: '¥100/天', color: 'teal' }
+        ];
+
+        var colorStyles = {
+            orange: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', badge: 'bg-orange-100 text-orange-800', iconBg: 'bg-orange-100' },
+            blue:   { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   badge: 'bg-blue-100 text-blue-800',   iconBg: 'bg-blue-100' },
+            red:    { bg: 'bg-red-50',    text: 'text-red-700',    border: 'border-red-200',    badge: 'bg-red-100 text-red-800',    iconBg: 'bg-red-100' },
+            purple: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', badge: 'bg-purple-100 text-purple-800', iconBg: 'bg-purple-100' },
+            teal:   { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200',   badge: 'bg-teal-100 text-teal-800',   iconBg: 'bg-teal-100' }
+        };
+
+        var currentServiceKey = null;
+
+        // === Auth Helpers (local) ===
+        function getToken()   { return localStorage.getItem('auth_token'); }
+        function isLoggedIn() { return !!getToken(); }
+        function authFetch(url, opts) {
+            opts = opts || {};
+            opts.headers = opts.headers || {};
+            opts.headers['Authorization'] = 'Bearer ' + getToken();
+            return fetch(url, opts).then(function(r) { return r.json(); });
+        }
+
+        // === DOM Refs ===
+        var bookingModal      = document.getElementById('booking-modal');
+        var loginPromptModal  = document.getElementById('login-prompt-modal');
+        var ordersContainer   = document.getElementById('orders-container');
+        var toastEl           = document.getElementById('toast');
+
+        // === Initialize ===
+        function init() {
+            renderNavbar();  // from shared.js
+            renderServiceCards();
+            loadOrders();
+            attachEvents();
+        }
+
+        // === Render Service Cards ===
+        function renderServiceCards() {
+            var grid = document.getElementById('service-cards-grid');
+            if (!grid) return;
+
+            var html = '';
+            services.forEach(function(svc) {
+                var c = colorStyles[svc.color];
+                html +=
+                    '<div class="bg-white border-2 ' + c.border + ' rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">' +
+                        '<div>' +
+                            '<div class="flex justify-between items-start mb-3">' +
+                                '<span class="p-3 ' + c.iconBg + ' rounded-xl text-2xl">' + svc.icon + '</span>' +
+                                '<span class="text-xs font-semibold px-2.5 py-1 rounded-full ' + c.badge + '">' + svc.price + '</span>' +
+                            '</div>' +
+                            '<h3 class="font-bold text-base mb-1 ' + c.text + '">' + svc.name + '</h3>' +
+                            '<p class="text-xs text-slate-500 mb-4">' + svc.desc + '</p>' +
+                        '</div>' +
+                        '<button class="btn-book w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all border-0 cursor-pointer shadow-sm"' +
+                            ' data-service-name="' + escapeHtml(svc.name) + '"' +
+                            ' data-service-key="' + escapeHtml(svc.id) + '">' +
+                            '📅 立即预约' +
+                        '</button>' +
+                    '</div>';
+            });
+            grid.innerHTML = html;
+
+            // Delegate: booking button clicks
+            grid.querySelectorAll('.btn-book').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    handleBooking(this.getAttribute('data-service-name'), this.getAttribute('data-service-key'));
+                });
+            });
+        }
+
+        // === Handle Booking ===
+        function handleBooking(serviceName, serviceKey) {
+            if (!isLoggedIn()) {
+                showLoginPrompt();
+                return;
+            }
+            currentServiceKey = serviceKey;
+            document.getElementById('service-name').value = serviceName;
+
+            // Default date = tomorrow
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('service-date').value = toISODate(tomorrow);
+            document.getElementById('service-time-slot').value = '上午';
+            document.getElementById('service-notes').value = '';
+
+            bookingModal.classList.remove('hidden');
+        }
+
+        // === Submit Booking ===
+        function submitBooking(e) {
+            e.preventDefault();
+
+            var btnSubmit = document.getElementById('btn-submit-booking');
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = '提交中...';
+
+            var payload = {
+                service_key: currentServiceKey,
+                service_name: document.getElementById('service-name').value,
+                date:         document.getElementById('service-date').value,
+                time_slot:    document.getElementById('service-time-slot').value,
+                notes:        document.getElementById('service-notes').value
+            };
+
+            authFetch(API_BASE + '/api/services/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function() {
+                showToast('🎉 预约成功！服务人员将在约定时间与您联系。');
+                closeBookingModal();
+                loadOrders();
+            })
+            .catch(function(err) {
+                showToast('❌ 预约失败：' + err.message);
+            })
+            .finally(function() {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = '确认预约';
+            });
+        }
+
+        // === Load Orders ===
+        function loadOrders() {
+            if (!isLoggedIn()) {
+                ordersContainer.innerHTML =
+                    '<div class="text-center py-8 text-slate-400 text-sm">' +
+                        '<span class="text-3xl block mb-2">🔐</span>' +
+                        '<p>请登录后查看预约记录</p>' +
+                    '</div>';
+                return;
+            }
+
+            ordersContainer.innerHTML =
+                '<div class="text-center py-8 text-slate-400 text-sm">' +
+                    '<i class="fa-solid fa-spinner fa-spin mr-2"></i>加载中...' +
+                '</div>';
+
+            authFetch(API_BASE + '/api/services/orders', { method: 'GET' })
+                .then(function(data) {
+                    renderOrdersTable(data);
+                })
+                .catch(function(err) {
+                    ordersContainer.innerHTML =
+                        '<div class="text-center py-8 text-slate-400 text-sm">' +
+                            '<span class="text-3xl block mb-2">⚠️</span>' +
+                            '<p>加载失败：' + escapeHtml(err.message) + '</p>' +
+                            '<button onclick="window._retryLoadOrders()" class="mt-3 text-xs text-blue-600 hover:underline border-0 bg-transparent cursor-pointer">点击重试</button>' +
+                        '</div>';
+                });
+        }
+
+        // Expose retry for inline onclick
+        window._retryLoadOrders = loadOrders;
+
+        // === Render Orders Table ===
+        function renderOrdersTable(data) {
+            var list = Array.isArray(data) ? data : (data && (data.items || data.orders || data.data)) || [];
+
+            if (list.length === 0) {
+                ordersContainer.innerHTML =
+                    '<div class="text-center py-8 text-slate-400 text-sm">' +
+                        '<span class="text-3xl block mb-2">📭</span>' +
+                        '<p>暂无预约记录</p>' +
+                    '</div>';
+                return;
+            }
+
+            var rows = '';
+            list.forEach(function(order) {
+                var status = (order.status || 'pending').toLowerCase();
+                var badge;
+                switch (status) {
+                    case 'confirmed': badge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">已确认</span>'; break;
+                    case 'completed': badge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">已完成</span>'; break;
+                    case 'cancelled': badge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">已取消</span>'; break;
+                    default:          badge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">待确认</span>'; break;
+                }
+                rows +=
+                    '<tr class="border-b hover:bg-slate-50 transition-colors">' +
+                        '<td class="p-3 text-sm font-medium">' + escapeHtml(order.service || order.service_name || '-') + '</td>' +
+                        '<td class="p-3 text-sm text-slate-600">' + escapeHtml(order.date || '-') + '</td>' +
+                        '<td class="p-3 text-sm text-slate-600">' + escapeHtml(order.time_slot || order.time || '-') + '</td>' +
+                        '<td class="p-3">' + badge + '</td>' +
+                    '</tr>';
+            });
+
+            ordersContainer.innerHTML =
+                '<div class="overflow-x-auto">' +
+                    '<table class="w-full text-left border-collapse">' +
+                        '<thead>' +
+                            '<tr class="bg-slate-50 text-slate-500 font-bold text-sm border-b">' +
+                                '<th class="p-3">服务项目</th>' +
+                                '<th class="p-3">预约日期</th>' +
+                                '<th class="p-3">时间段</th>' +
+                                '<th class="p-3">状态</th>' +
+                            '</tr>' +
+                        '</thead>' +
+                        '<tbody class="divide-y text-slate-600">' + rows + '</tbody>' +
+                    '</table>' +
+                '</div>';
+        }
+
+        // === Modal Controls ===
+        function closeBookingModal() {
+            bookingModal.classList.add('hidden');
+            currentService = null;
+        }
+
+        function showLoginPrompt() {
+            loginPromptModal.classList.remove('hidden');
+        }
+
+        function closeLoginPrompt() {
+            loginPromptModal.classList.add('hidden');
+        }
+
+        // === Event Binding ===
+        function attachEvents() {
+            // Booking modal
+            document.getElementById('btn-close-modal').addEventListener('click', closeBookingModal);
+            document.getElementById('btn-cancel-booking').addEventListener('click', closeBookingModal);
+            bookingModal.addEventListener('click', function(e) {
+                if (e.target === bookingModal) closeBookingModal();
+            });
+            document.getElementById('booking-form').addEventListener('submit', submitBooking);
+
+            // Login prompt
+            document.getElementById('btn-close-login-prompt').addEventListener('click', closeLoginPrompt);
+            loginPromptModal.addEventListener('click', function(e) {
+                if (e.target === loginPromptModal) closeLoginPrompt();
+            });
+
+            // Refresh orders
+            document.getElementById('btn-refresh-orders').addEventListener('click', loadOrders);
+        }
+
+        // === Toast ===
+        var toastTimer;
+        function showToast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function() {
+                toastEl.classList.add('hidden');
+            }, 3000);
+        }
+
+        // === Utilities ===
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function toISODate(date) {
+            var y = date.getFullYear();
+            var m = String(date.getMonth() + 1).padStart(2, '0');
+            var d = String(date.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+
+        // === Boot ===
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

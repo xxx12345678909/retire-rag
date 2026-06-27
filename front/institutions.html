@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机构养老查询 — 智慧养老云平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="shared.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .spinner {
+            border-top-color: #3b82f6;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+
+    <!-- Navigation bar injected by shared.js -->
+    <div id="navbar"></div>
+
+    <!-- Main content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-6">
+
+        <!-- Page title -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <span class="text-emerald-600">🏨</span> 机构养老查询
+            </h2>
+            <p class="text-sm text-slate-400 mt-1">筛选合适的养老机构，为长辈找到安心的家</p>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
+            <div class="flex flex-wrap items-end gap-4">
+
+                <!-- District dropdown -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">区域</label>
+                    <select id="filter-district"
+                            class="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all min-w-[130px]">
+                        <option value="">全部</option>
+                        <option value="朝阳区">朝阳区</option>
+                        <option value="海淀区">海淀区</option>
+                        <option value="西城区">西城区</option>
+                        <option value="东城区">东城区</option>
+                        <option value="丰台区">丰台区</option>
+                        <option value="通州区">通州区</option>
+                    </select>
+                </div>
+
+                <!-- Care level dropdown -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">护理等级</label>
+                    <select id="filter-care-level"
+                            class="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all min-w-[150px]">
+                        <option value="">全部</option>
+                        <option value="自理">自理</option>
+                        <option value="轻度失能">轻度失能</option>
+                        <option value="中度失能">中度失能</option>
+                        <option value="重度失能">重度失能</option>
+                    </select>
+                </div>
+
+                <!-- Price range buttons -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">月费预算</label>
+                    <div class="flex gap-1.5">
+                        <button data-price="3000"
+                                class="price-btn text-xs px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-medium hover:bg-slate-100 hover:border-slate-300 transition-all">
+                            3000以下
+                        </button>
+                        <button data-price="5000"
+                                class="price-btn text-xs px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-medium hover:bg-slate-100 hover:border-slate-300 transition-all">
+                            3000-5000
+                        </button>
+                        <button data-price="8000"
+                                class="price-btn text-xs px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-medium hover:bg-slate-100 hover:border-slate-300 transition-all">
+                            5000-8000
+                        </button>
+                        <button data-price=""
+                                class="price-btn price-btn-active text-xs px-3 py-2 rounded-lg border border-emerald-500 bg-emerald-50 text-emerald-700 font-semibold transition-all">
+                            不限
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search button -->
+                <button id="search-btn"
+                        class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold px-6 py-2.5 rounded-lg text-sm shadow-sm transition-all">
+                    <i class="fa-solid fa-magnifying-glass"></i> 搜索
+                </button>
+
+            </div>
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="loading" class="hidden flex flex-col items-center justify-center py-20">
+            <div class="spinner w-10 h-10 border-4 border-slate-200 rounded-full mb-4" style="border-top-color: #10b981;"></div>
+            <p class="text-sm text-slate-400">正在查询机构信息...</p>
+        </div>
+
+        <!-- Results grid -->
+        <div id="results-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden bg-white rounded-2xl border border-slate-100 shadow-sm p-10 text-center">
+            <div class="text-5xl mb-4">🔍</div>
+            <h3 class="text-lg font-bold text-slate-700 mb-2">未找到匹配机构</h3>
+            <p class="text-sm text-slate-400 mb-6">当前筛选条件下没有符合条件的养老机构，请尝试以下建议：</p>
+            <div class="flex flex-wrap justify-center gap-2 text-xs text-slate-500 mb-4">
+                <span class="bg-slate-100 px-3 py-1.5 rounded-full">扩大搜索区域范围</span>
+                <span class="bg-slate-100 px-3 py-1.5 rounded-full">放宽护理等级要求</span>
+                <span class="bg-slate-100 px-3 py-1.5 rounded-full">调高月费预算上限</span>
+                <span class="bg-slate-100 px-3 py-1.5 rounded-full">选择不限重置筛选</span>
+            </div>
+            <button id="reset-empty-btn"
+                    class="text-sm text-emerald-600 hover:text-emerald-700 font-bold underline">
+                重置全部筛选条件
+            </button>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-state" class="hidden bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+            <div class="text-3xl mb-3">⚠️</div>
+            <p id="error-message" class="text-sm text-red-700 font-medium"></p>
+            <button id="retry-btn"
+                    class="mt-4 text-sm bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg transition-all">
+                重新查询
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        /* ============================================================
+           State
+           ============================================================ */
+        var selectedPrice = '';
+
+        /* ============================================================
+           DOM references
+           ============================================================ */
+        var districtSelect    = document.getElementById('filter-district');
+        var careLevelSelect   = document.getElementById('filter-care-level');
+        var priceButtons      = document.querySelectorAll('.price-btn');
+        var searchBtn         = document.getElementById('search-btn');
+        var loadingEl         = document.getElementById('loading');
+        var resultsGrid       = document.getElementById('results-grid');
+        var emptyState        = document.getElementById('empty-state');
+        var errorState        = document.getElementById('error-state');
+        var errorMessage      = document.getElementById('error-message');
+        var retryBtn          = document.getElementById('retry-btn');
+        var resetEmptyBtn     = document.getElementById('reset-empty-btn');
+
+        /* ============================================================
+           Type badge color mapping
+           ============================================================ */
+        var typeColors = {
+            '公办':      { bg: 'bg-blue-100', text: 'text-blue-800', ring: 'ring-blue-300' },
+            '民办':      { bg: 'bg-emerald-100', text: 'text-emerald-800', ring: 'ring-emerald-300' },
+            '公建民营':  { bg: 'bg-teal-100', text: 'text-teal-800', ring: 'ring-teal-300' },
+            '社区嵌入式': { bg: 'bg-orange-100', text: 'text-orange-800', ring: 'ring-orange-300' },
+            '医养结合':  { bg: 'bg-purple-100', text: 'text-purple-800', ring: 'ring-purple-300' },
+        };
+
+        function badgeColor(type) {
+            return typeColors[type] || { bg: 'bg-slate-100', text: 'text-slate-700', ring: 'ring-slate-300' };
+        }
+
+        /* ============================================================
+           Price formatting
+           ============================================================ */
+        function formatPrice(min, max) {
+            function fmt(n) { return n != null ? n.toLocaleString('zh-CN') : '—'; }
+            if (min != null && max != null && min === max) {
+                return '¥' + fmt(min) + '/月';
+            }
+            if (min == null && max == null) {
+                return '价格面议';
+            }
+            if (min == null) {
+                return '¥' + fmt(max) + '以下/月';
+            }
+            if (max == null) {
+                return '¥' + fmt(min) + '起/月';
+            }
+            return '¥' + fmt(min) + ' - ¥' + fmt(max) + '/月';
+        }
+
+        /* ============================================================
+           Handle various API response shapes
+           ============================================================ */
+        function extractData(payload) {
+            if (Array.isArray(payload)) return payload;
+            if (payload && Array.isArray(payload.data)) return payload.data;
+            if (payload && Array.isArray(payload.items)) return payload.items;
+            if (payload && Array.isArray(payload.results)) return payload.results;
+            return [];
+        }
+
+        /* ============================================================
+           Price button toggle (single-select)
+           ============================================================ */
+        priceButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                priceButtons.forEach(function(b) {
+                    b.classList.remove(
+                        'border-emerald-500', 'bg-emerald-50',
+                        'text-emerald-700', 'font-semibold', 'price-btn-active'
+                    );
+                    b.classList.add(
+                        'border-slate-200', 'bg-slate-50',
+                        'text-slate-600', 'font-medium'
+                    );
+                });
+                btn.classList.add(
+                    'border-emerald-500', 'bg-emerald-50',
+                    'text-emerald-700', 'font-semibold', 'price-btn-active'
+                );
+                btn.classList.remove(
+                    'border-slate-200', 'bg-slate-50',
+                    'text-slate-600', 'font-medium'
+                );
+                selectedPrice = btn.dataset.price;
+            });
+        });
+
+        /* ============================================================
+           Panel visibility helpers
+           ============================================================ */
+        function hideAll() {
+            resultsGrid.classList.add('hidden');
+            resultsGrid.innerHTML = '';
+            emptyState.classList.add('hidden');
+            errorState.classList.add('hidden');
+        }
+
+        function showLoading() {
+            hideAll();
+            loadingEl.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            loadingEl.classList.add('hidden');
+        }
+
+        /* ============================================================
+           Render a single institution card
+           ============================================================ */
+        function renderCard(inst) {
+            var color = badgeColor(inst.type);
+
+            /* care level tags */
+            var careTags = '';
+            var levels = inst.care_levels || [];
+            for (var i = 0; i < levels.length; i++) {
+                careTags += '<span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">'
+                         + levels[i] + '</span>';
+            }
+
+            /* beds info */
+            var bedsHtml = '';
+            if (inst.beds_available !== undefined && inst.beds_total !== undefined) {
+                bedsHtml =
+                    '<div class="text-xs text-slate-500">'
+                    + '<i class="fa-solid fa-bed mr-1.5 text-slate-400"></i>'
+                    + '<span class="font-bold text-slate-700">' + inst.beds_available + '</span>'
+                    + '<span class="text-slate-400">/' + inst.beds_total + ' 床位</span>'
+                    + '</div>';
+            }
+
+            /* phone with call icon */
+            var phoneHtml = '';
+            if (inst.phone) {
+                phoneHtml =
+                    '<div class="border-t border-slate-100 pt-3">'
+                    + '<a href="tel:' + inst.phone + '"'
+                    + ' class="inline-flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-bold transition-colors">'
+                    + '<i class="fa-solid fa-phone"></i>' + inst.phone
+                    + '</a></div>';
+            }
+
+            /* description */
+            var descHtml = '';
+            if (inst.description) {
+                descHtml = '<p class="text-xs text-slate-500 leading-relaxed line-clamp-3">'
+                         + inst.description + '</p>';
+            }
+
+            return ''
+                + '<div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all p-5 flex flex-col justify-between gap-4">'
+                +   '<div class="space-y-3">'
+                +     '<div class="flex items-start justify-between gap-2">'
+                +       '<h3 class="font-bold text-base text-slate-800 leading-snug">' + inst.name + '</h3>'
+                +       '<span class="shrink-0 text-[10px] px-2.5 py-0.5 rounded-full font-bold '
+                +         color.bg + ' ' + color.text + ' ring-1 ' + color.ring + '">'
+                +         (inst.type || '养老机构')
+                +       '</span>'
+                +     '</div>'
+                +     '<div class="flex items-start gap-1.5 text-xs text-slate-500">'
+                +       '<i class="fa-solid fa-location-dot mt-0.5 text-slate-400"></i>'
+                +       '<span>' + (inst.district || '') + (inst.address || '') + '</span>'
+                +     '</div>'
+                +     '<div class="text-sm">'
+                +       '<span class="text-red-500 font-bold">'
+                +         formatPrice(inst.price_min, inst.price_max)
+                +       '</span>'
+                +     '</div>'
+                +     bedsHtml
+                +     (careTags ? '<div class="flex flex-wrap gap-1">' + careTags + '</div>' : '')
+                +     descHtml
+                +   '</div>'
+                +   phoneHtml
+                + '</div>';
+        }
+
+        /* ============================================================
+           Render results grid
+           ============================================================ */
+        function renderResults(institutions) {
+            hideLoading();
+            resultsGrid.classList.remove('hidden');
+            var html = '';
+            for (var i = 0; i < institutions.length; i++) {
+                html += renderCard(institutions[i]);
+            }
+            resultsGrid.innerHTML = html;
+        }
+
+        function renderEmpty() {
+            hideLoading();
+            emptyState.classList.remove('hidden');
+        }
+
+        function renderError(msg) {
+            hideLoading();
+            errorMessage.textContent = msg || '查询失败，请稍后重试。';
+            errorState.classList.remove('hidden');
+        }
+
+        /* ============================================================
+           Build query string from filters
+           ============================================================ */
+        function buildQueryParams() {
+            var params = new URLSearchParams();
+            var district = districtSelect.value.trim();
+            var careLevel = careLevelSelect.value.trim();
+            if (district) params.set('district', district);
+            if (careLevel) params.set('care_level', careLevel);
+            if (selectedPrice) params.set('price_max', selectedPrice);
+            return params.toString();
+        }
+
+        /* ============================================================
+           Fetch institutions and render
+           ============================================================ */
+        async function search() {
+            showLoading();
+            try {
+                var qs = buildQueryParams();
+                var url = '/admin/institutions' + (qs ? '?' + qs : '');
+                var data = await api(url);
+                var institutions = extractData(data);
+                if (institutions.length === 0) {
+                    renderEmpty();
+                } else {
+                    renderResults(institutions);
+                }
+            } catch (err) {
+                console.error('查询机构失败：', err);
+                renderError(err.message);
+            }
+        }
+
+        /* ============================================================
+           Reset all filters to default
+           ============================================================ */
+        function resetFilters() {
+            districtSelect.value = '';
+            careLevelSelect.value = '';
+            selectedPrice = '';
+
+            priceButtons.forEach(function(b) {
+                b.classList.remove(
+                    'border-emerald-500', 'bg-emerald-50',
+                    'text-emerald-700', 'font-semibold', 'price-btn-active'
+                );
+                b.classList.add(
+                    'border-slate-200', 'bg-slate-50',
+                    'text-slate-600', 'font-medium'
+                );
+            });
+
+            /* re-activate the "unlimited" button */
+            var unlimitedBtn = document.querySelector('.price-btn[data-price=""]');
+            if (unlimitedBtn) {
+                unlimitedBtn.classList.add(
+                    'border-emerald-500', 'bg-emerald-50',
+                    'text-emerald-700', 'font-semibold', 'price-btn-active'
+                );
+                unlimitedBtn.classList.remove(
+                    'border-slate-200', 'bg-slate-50',
+                    'text-slate-600', 'font-medium'
+                );
+            }
+        }
+
+        /* ============================================================
+           Event bindings
+           ============================================================ */
+        searchBtn.addEventListener('click', search);
+        retryBtn.addEventListener('click', search);
+        resetEmptyBtn.addEventListener('click', function() {
+            resetFilters();
+            search();
+        });
+
+        /* Enter key triggers search from dropdowns */
+        [districtSelect, careLevelSelect].forEach(function(el) {
+            el.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') search();
+            });
+        });
+
+        /* ============================================================
+           Bootstrap on page load
+           ============================================================ */
+        document.addEventListener('DOMContentLoaded', function() {
+            renderNavbar();
+            search();
+        });
+    </script>
+</body>
+</html>
