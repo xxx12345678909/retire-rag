@@ -628,7 +628,7 @@ async def debug_stats(current_user: dict = Depends(get_current_user)):
     return {
         "runtime": runtime.snapshot(),
         "kb_stats": {
-            kb: rag_service.get_vector_count(kb)
+            kb: rag_service.vector_store.get_vector_count(kb)
             for kb in rag_service.KB_NAMES
         },
     }
