@@ -417,11 +417,13 @@
                                 <div v-for="order in orderList" :key="order.id" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2 mb-1">
-                                            <span class="font-bold text-sm">{{ order.type }}</span>
-                                            <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">待服务商派单</span>
+                                            <span class="font-bold text-sm">{{ order.service_name }}</span>
+                                            <span :class="order.status === 'confirmed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="text-xs px-2 py-0.5 rounded font-bold">
+                                                {{ order.status === 'confirmed' ? '已确认' : '待服务商派单' }}
+                                            </span>
                                         </div>
-                                        <p class="text-xs text-slate-400">老人: {{ order.name }} | 地址: {{ order.addr }}</p>
-                                        <p class="text-xs text-slate-400 mt-1">时间: {{ order.time }}</p>
+                                        <p class="text-xs text-slate-400">日期: {{ order.date }} | 时段: {{ order.time_slot }}</p>
+                                        <p class="text-xs text-slate-400 mt-1" v-if="order.notes">备注: {{ order.notes }}</p>
                                     </div>
                                     <button @click="cancelOrder(order.id)" class="text-xs text-red-500 hover:underline self-center">
                                         取消预约
@@ -633,10 +635,14 @@
                     <div class="bg-white rounded-2xl border p-6 shadow-sm">
                         <h2 class="font-bold text-xl mb-4">📋 我的预约</h2>
                         <div v-if="orderList.length === 0" class="text-slate-400 text-sm">暂无预约记录</div>
-                        <div v-for="o in orderList" :key="o.id" class="border-b py-2 text-sm flex justify-between">
-                            <span>{{ o.service_name || o.type }}</span>
-                            <span class="text-slate-400">{{ o.date }} {{ o.time_slot || '' }}</span>
-                            <span :class="o.status === 'confirmed' ? 'text-emerald-600' : 'text-amber-600'">{{ o.status === 'confirmed' ? '已确认' : '待处理' }}</span>
+                        <div v-for="o in orderList" :key="o.id" class="border-b py-3 text-sm flex justify-between items-center">
+                            <div>
+                                <span class="font-bold">{{ o.service_name }}</span>
+                                <span class="text-slate-400 ml-2">{{ o.date }} {{ o.time_slot }}</span>
+                            </div>
+                            <span :class="o.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs' : 'bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs'">
+                                {{ o.status === 'confirmed' ? '已确认' : '待处理' }}
+                            </span>
                         </div>
                     </div>
                 </template>
@@ -1080,7 +1086,7 @@
                             headers: { 'Authorization': `Bearer ${authToken.value}` }
                         });
                         const d = await r.json();
-                        orderList.value = Array.isArray(d) ? d : (d.data || []);
+                        orderList.value = Array.isArray(d) ? d : (d.data || d || []);
                     } catch(e) {}
                     orderLoading.value = false;
                 };
