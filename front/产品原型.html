@@ -1006,10 +1006,6 @@
                     else { currentKbType.value = 'platform'; }
                 };
 
-                // 初始化
-                loadAuth();
-                fetchPolicies();
-                fetchInstitutes();
 
                 // --- 养老机构查询（真实 API） ---
                 const institutes = ref([]);
@@ -1454,6 +1450,11 @@
                         }
                     }
                 };
+
+                // 初始化（所有函数定义完成后调用）
+                loadAuth();
+                fetchPolicies();
+                fetchInstitutes();
 
                 return {
                     isSeniorMode, currentTab, serviceTab, menuTabs,
