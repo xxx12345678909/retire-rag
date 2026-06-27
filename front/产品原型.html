@@ -1399,9 +1399,11 @@
                 };
 
                 const showOriginalDoc = (policy) => {
-                    const name = policy?.name || policy || '';
+                    if (!policy) return;
+                    const name = typeof policy === 'string' ? policy : (policy.name || policy.title || '');
+                    if (!name) return;
                     const keyword = name.slice(0, 3);
-                    const chunk = mockChunks.value.find(c => c.source.includes(keyword)) || mockChunks.value[0];
+                    const chunk = mockChunks.value.find(c => c.source && c.source.includes(keyword)) || mockChunks.value[0];
                     if (!chunk) return;
                     citationDoc.value = {
                         doc: chunk.source,
