@@ -639,7 +639,9 @@ const { createApp, ref, computed, watch, nextTick } = Vue;
                 fetchPolicies();
                 fetchInstitutes();
 
-                return {
+                };
+            }
+        });
     };
 }
 
