@@ -555,25 +555,16 @@
                         <div class="bg-white p-6 rounded-2xl border shadow-sm">
                             <h3 class="font-bold text-base mb-4 border-b pb-2 flex justify-between items-center">
                                 <span>📊 基础健康档案</span>
-                                <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">家属代录绑定</span>
+                                <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">{{ healthLoaded ? '已同步' : '加载中' }}</span>
                             </h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="text-xs text-slate-400">姓名</span>
-                                    <span class="font-bold text-sm">陈大伯</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="text-xs text-slate-400">年龄</span>
-                                    <span class="font-bold text-sm">76 岁</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-1">
-                                    <span class="text-xs text-slate-400">主要慢性病记录</span>
-                                    <span class="font-bold text-sm text-red-600">2型糖尿病、原发性高血压</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-xs text-slate-400">绑定的紧急监护人</span>
-                                    <span class="font-bold text-sm">儿子 (138****8888)</span>
-                                </div>
+                            <div v-if="!authUser" class="text-slate-400 text-sm text-center py-4">请先登录</div>
+                            <div v-else class="space-y-3">
+                                <input v-model="healthProfile.elder_name" placeholder="老人姓名" class="w-full border rounded-lg p-2 text-sm">
+                                <input v-model="healthProfile.age" type="number" placeholder="年龄" class="w-full border rounded-lg p-2 text-sm">
+                                <input v-model="healthProfile.chronic_diseases" placeholder="慢性病（如：2型糖尿病、高血压）" class="w-full border rounded-lg p-2 text-sm">
+                                <input v-model="healthProfile.medications" placeholder="用药清单（如：二甲双胍 1片/日）" class="w-full border rounded-lg p-2 text-sm">
+                                <input v-model="healthProfile.notes" placeholder="备注（过敏史、手术史等）" class="w-full border rounded-lg p-2 text-sm">
+                                <button @click="saveHealthProfile" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded text-sm">保存档案</button>
                             </div>
                         </div>
 
@@ -1005,6 +996,7 @@
                             authUser.value = { username: d.username, role: d.role };
                             showLoginModal.value = false;
                             fetchFamily();
+                            fetchHealthProfile();
                             showToast('登录成功');
                         } else showToast('登录失败');
                     } catch(e) { showToast('网络错误'); }
@@ -1093,9 +1085,9 @@
                 const switchTab = (tabId) => {
                     currentTab.value = tabId;
                     if (tabId === 'policy') { currentKbType.value = 'policy'; fetchPolicies(); }
-                    else if (tabId === 'health') { currentKbType.value = 'health'; }
+                    else if (tabId === 'health') { currentKbType.value = 'health'; fetchHealthProfile(); }
                     else if (tabId === 'services') { currentKbType.value = 'services'; fetchInstitutes(); fetchServices(); }
-                    else if (tabId === 'user') { fetchOrders(); }
+                    else if (tabId === 'user') { fetchOrders(); fetchHealthProfile(); }
                     else { currentKbType.value = 'platform'; }
                 };
 
@@ -1314,6 +1306,35 @@
                         const d = await r.json();
                         showToast('🚨 ' + (d.message || '紧急呼叫已发送'));
                     } catch(e) { showToast('🚨 紧急呼叫已发送，工作人员将尽快响应'); }
+                };
+
+                // ── 健康档案（真实 API） ──
+                const healthProfile = ref({ elder_name: '', age: '', chronic_diseases: '', medications: '', notes: '' });
+                const healthLoaded = ref(false);
+                const fetchHealthProfile = async () => {
+                    if (!authToken.value) return;
+                    try {
+                        const r = await fetch(`${API_BASE}/api/health/profile`, {
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                        });
+                        if (r.ok) {
+                            const d = await r.json();
+                            if (d && d.elder_name) healthProfile.value = d;
+                        }
+                    } catch(e) {}
+                    healthLoaded.value = true;
+                };
+                const saveHealthProfile = async () => {
+                    if (!authToken.value) { showToast('请先登录'); return; }
+                    try {
+                        const r = await fetch(`${API_BASE}/api/health/profile`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+                            body: JSON.stringify(healthProfile.value)
+                        });
+                        if (r.ok) showToast('健康档案已保存');
+                        else showToast('保存失败');
+                    } catch(e) { showToast('网络错误'); }
                 };
 
                 // --- RAG 后台运维管理 MOCK 数据及动作 ---
@@ -1619,6 +1640,7 @@
 
                     // 健康管理
                     pillList, pillForm, pillAlert, pillAlertName, pillAlertDose, addPill, deletePill, mockHealthArticles, triggerSOS,
+                    healthProfile, healthLoaded, fetchHealthProfile, saveHealthProfile,
 
                     // RAG后台
                     chunkSettings, uploadStatus, triggerMockUpload, mockChunks,
