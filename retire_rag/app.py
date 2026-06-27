@@ -593,7 +593,15 @@ async def sos_trigger_endpoint(current_user: dict = Depends(get_current_user)):
     username = current_user["username"] if current_user else "匿名用户"
     user_id = current_user["id"] if current_user else None
     phone = current_user.get("phone", "") if current_user else ""
-    alert = sos_trigger(user_id=user_id, username=username, phone=phone, message="紧急求助！请立即联系！")
+    # 获取紧急联系人（家属）
+    family_info = ""
+    if user_id:
+        from service.user_service import get_family
+        members = get_family(user_id)
+        if members:
+            family_info = "；".join(f"{m['name']}（{m['relation']}）{m['id_card']}" for m in members[:3])
+    message = f"紧急求助！请立即联系！" + (f" 紧急联系人：{family_info}" if family_info else "")
+    alert = sos_trigger(user_id=user_id, username=username, phone=phone, message=message)
     return {"message": "紧急呼叫已发送，工作人员将尽快响应", "alert": alert}
 
 
