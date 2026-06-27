@@ -220,7 +220,7 @@
                             <div v-for="policy in policies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.name)">
                                 <div class="flex justify-between text-xs text-slate-400 mb-1">
                                     <span>类别: {{ policy.cat }}</span>
-                                    <span>{{ policy.source || '' }}</span>
+                                    <span>{{ policy.date }}</span>
                                 </div>
                                 <h4 class="font-bold" :class="isSeniorMode ? 'text-xl' : 'text-sm'">{{ policy.name }}</h4>
                                 <p class="text-xs text-slate-500 mt-1" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
@@ -465,16 +465,13 @@
                                 <div v-for="policy in policies" :key="policy.id" class="p-4 bg-slate-50 rounded-xl hover:shadow-sm border transition-all">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-xs font-bold px-2.5 py-1 rounded bg-blue-100 text-blue-800">{{ policy.cat }}</span>
-                                        <span class="text-xs text-slate-400">{{ policy.source || '' }}</span>
+                                        <span class="text-xs text-slate-400">{{ policy.date }}</span>
                                     </div>
                                     <h4 class="font-extrabold text-sm mb-1" :class="isSeniorMode ? 'text-xl' : ''">{{ policy.name }}</h4>
                                     <p class="text-xs text-slate-500 mb-3" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
                                     <div class="flex flex-wrap gap-2">
                                         <button @click="consultPolicy(policy.name)" class="text-xs bg-white border border-blue-500 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-50 transition-all">
                                             🔍 政策智能匹配
-                                        </button>
-                                        <button @click="showOriginalDoc(policy)" class="text-xs bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-300 transition-all">
-                                            📄 查看原文片段 (RAG源)
                                         </button>
                                     </div>
                                 </div>
@@ -681,138 +678,7 @@
                 </template>
             </div>
 
-            <!-- 管理后台入口移至 /front/admin.html -->
-            <div v-if="false" class="space-y-6">
-                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow">
-                    <h2 class="font-extrabold text-xl mb-1">🤖 养老专属 RAG 知识库后台运维端</h2>
-                    <p class="text-slate-400 text-xs">在这里，管理员可以批量导入政策或医疗科普文件、进行向量化自动文本分片调节、查看提问日志以及优化 RAG 召回精度。</p>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- 左侧：文档上传与向量分块管理 -->
-                    <div class="lg:col-span-1 space-y-6">
-                        <!-- 文档上传 -->
-                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                            <h3 class="font-bold text-base mb-4 border-b pb-2">📂 知识库文档批量导入</h3>
-                            
-                            <!-- 模拟拖拽上传 -->
-                            <div @click="triggerMockUpload" class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 cursor-pointer transition-all">
-                                <span class="text-3xl text-slate-400 block mb-2">📁</span>
-                                <span class="font-bold text-xs text-slate-600 block">点击上传本地文档</span>
-                                <span class="text-[10px] text-slate-400 block mt-1">支持 PDF、Word、TXT 格式</span>
-                            </div>
-
-                            <div v-if="uploadStatus" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-2">
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-blue-900">{{ uploadStatus.name }}</span>
-                                    <span class="text-blue-600 font-bold">{{ uploadStatus.progress }}%</span>
-                                </div>
-                                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-blue-600 h-full transition-all duration-300" :style="{ width: uploadStatus.progress + '%' }"></div>
-                                </div>
-                                <p class="text-[10px] text-slate-500">{{ uploadStatus.message }}</p>
-                            </div>
-
-                            <!-- 知识库分类选择 -->
-                            <div class="mt-4">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">分发入库类别</label>
-                                <select class="w-full border rounded p-2 text-xs bg-slate-50">
-                                    <option>政策法规库</option>
-                                    <option>居家/养老服务知识库</option>
-                                    <option>老年健康科普知识库</option>
-                                    <option>系统操作FAQ库</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- 向量切块控制 -->
-                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                            <h3 class="font-bold text-base mb-4 border-b pb-2">⚙️ 向量分片 Chunk 策略调整</h3>
-                            <div class="space-y-4 text-xs">
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <span>单个分片最大字数 (Chunk Size)</span>
-                                        <span class="font-bold text-blue-600">{{ chunkSettings.size }} 字</span>
-                                    </div>
-                                    <input v-model="chunkSettings.size" type="range" min="100" max="1000" step="50" class="w-full">
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-1">
-                                        <span>重叠字数边界 (Overlap Size)</span>
-                                        <span class="font-bold text-blue-600">{{ chunkSettings.overlap }} 字</span>
-                                    </div>
-                                    <input v-model="chunkSettings.overlap" type="range" min="10" max="200" step="10" class="w-full">
-                                </div>
-                                <div class="bg-slate-50 p-3 rounded-lg border">
-                                    <span class="font-bold block mb-1">当前分片策略建议：</span>
-                                    <span class="text-slate-500">当前针对《政策法规库》使用 RecursiveCharacterTextSplitter 针对标点递归分片，对长难句及表格进行重叠保留。</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 中右：自动切块预览与问答日志审计 -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <!-- 文档分块段落可视化 -->
-                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                            <h3 class="font-bold text-base mb-4 border-b pb-2">🧩 文本向量切片可视化大盘</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="(chunk, idx) in mockChunks" :key="idx" class="p-3 border rounded-xl bg-slate-50 space-y-1 hover:border-blue-300 hover:bg-blue-50/10 transition-all cursor-pointer">
-                                    <div class="flex justify-between text-[10px]">
-                                        <span class="text-slate-400">分片 #{{ idx + 1 }} | 包含: {{ chunk.len }}字</span>
-                                        <span class="font-bold text-blue-600">向量维度: 1536</span>
-                                    </div>
-                                    <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">{{ chunk.content }}</p>
-                                    <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t">
-                                        <span>关联源: {{ chunk.source }}</span>
-                                        <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-mono">ID: {{ chunk.hash }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 问答日志及反馈机制 -->
-                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                            <h3 class="font-bold text-base mb-4 border-b pb-2">📋 实时用户问答日志 (RAG检索审计)</h3>
-                            <div class="overflow-x-auto text-xs">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-slate-50 text-slate-500 font-bold border-b">
-                                            <th class="p-3">提问内容</th>
-                                            <th class="p-3">召回知识库</th>
-                                            <th class="p-3">命中最高Chunk评分</th>
-                                            <th class="p-3">生成回答质量反馈</th>
-                                            <th class="p-3">操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y text-slate-600">
-                                        <tr v-for="log in mockQaLogs" :key="log.id" class="hover:bg-slate-50">
-                                            <td class="p-3 font-semibold">{{ log.query }}</td>
-                                            <td class="p-3">
-                                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700">{{ log.kb }}</span>
-                                            </td>
-                                            <td class="p-3 font-mono font-bold text-blue-600">{{ log.score }}</td>
-                                            <td class="p-3">
-                                                <span v-if="log.rating === 'good'" class="text-emerald-600"><i class="fa-solid fa-thumbs-up mr-1"></i>高满意</span>
-                                                <span v-else-if="log.rating === 'bad'" class="text-red-500"><i class="fa-solid fa-thumbs-down mr-1"></i>低召回 (需补充)</span>
-                                                <span v-else class="text-slate-400">待标注</span>
-                                            </td>
-                                            <td class="p-3">
-                                                <button @click="optimizeChunk(log)" class="text-blue-600 hover:underline">
-                                                    优化分片规则
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- 3. 全站悬浮 AI 助手组件 (RAG 核心演示交互) -->
+            <!-- 3. 全站悬浮 AI 助手组件 (RAG 核心演示交互) -->
         <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 max-w-[95%] sm:max-w-md">
             
             <!-- AI 对话弹窗主框 -->
@@ -933,22 +799,7 @@
             <span>💡</span> {{ toastText }}
         </div>
 
-        <!-- 引用原文弹窗阅读器 -->
-        <div v-if="citationDoc" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h4 class="font-extrabold text-base">📄 召回原文精确命中段落</h4>
-                    <button @click="citationDoc = null" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="p-4 bg-slate-50 border rounded-xl font-serif text-sm leading-relaxed text-slate-700">
-                    "{{ citationDoc.content }}"
-                </div>
-                <div class="text-xs text-slate-400">
-                    数据源引用：{{ citationDoc.doc }} (第 {{ citationDoc.page }} 页)
-                </div>
-                <button @click="citationDoc = null" class="w-full bg-slate-900 text-white py-2.5 rounded-lg font-bold text-xs">关闭预览</button>
-            </div>
-        </div>
+        
     </div>
 
     <!-- 运行 Vue 应用控制脚本 -->
@@ -963,7 +814,7 @@
                 const serviceTab = ref('institutes');
                 const toast = ref(false);
                 const toastText = ref('');
-                const citationDoc = ref(null);
+                
 
                 // --- 菜单列表 ---
                 const menuTabs = ref([
@@ -1343,86 +1194,19 @@
                 // 一键紧急援助 SOS 触发
                 const triggerSOS = async () => {
                     if (!authToken.value) { showToast('请先登录后再使用紧急呼叫'); return; }
-                    // 获取设备位置
-                    let location = '定位获取中...';
-                    if ('geolocation' in navigator) {
-                        try {
-                            const pos = await new Promise((resolve, reject) => {
-                                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000, enableHighAccuracy: true });
-                            });
-                            location = `${pos.coords.latitude.toFixed(5)},${pos.coords.longitude.toFixed(5)}`;
-                        } catch(e) {}
-                    }
                     try {
                         const r = await fetch(`${API_BASE}/api/sos/trigger`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
-                            body: JSON.stringify({ location })
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
                         });
                         const d = await r.json();
-                        showToast('🚨 ' + (d.message || '紧急呼叫已发送，位置已上报'));
+                        showToast('🚨 ' + (d.message || '紧急呼叫已发送'));
                     } catch(e) { showToast('🚨 紧急呼叫已发送，工作人员将尽快响应'); }
                 };
 
                 // --- RAG 后台运维管理 MOCK 数据及动作 ---
                 const chunkSettings = ref({ size: 300, overlap: 50 });
                 const uploadStatus = ref(null);
-                const triggerMockUpload = () => {
-                    uploadStatus.value = { name: '2026年社区高龄老人特殊关怀和补贴落实方案_最终版.pdf', progress: 10, message: '系统正在解析并解析 PDF 原文...' };
-                    const interval = setInterval(() => {
-                        if (uploadStatus.value.progress < 100) {
-                            uploadStatus.value.progress += 30;
-                            if (uploadStatus.value.progress === 40) uploadStatus.value.message = '正在提取文本，自动对长表格进行还原...';
-                            if (uploadStatus.value.progress === 70) uploadStatus.value.message = '正在向量化对切片进行 Embedding 转算维度...';
-                        } else {
-                            uploadStatus.value.message = '分片入向量数据库成功！已新增6个知识片段。';
-                            clearInterval(interval);
-                            // 将上传的新内容充实到切片可视化列表中展示
-                            mockChunks.unshift(
-                                { content: '2026年特殊关怀落实：对具有北京市户籍，且失能程度评定为中度、重度的养老孤老或优抚对象增发400元居家养老护理券，由街乡政务大厅在每月首旬发放至北京养老卡内。', source: '特殊关怀和补贴落实方案.pdf', len: 110, hash: 'a1b2c3d4' },
-                                { content: '2026年补贴发放：不与本市低保政策重合发放。如老人同时符合特困供养、高龄津贴和长护险多重政策，则按照就高、不重复的申报程序，由家属在养老平台上合并进行申报和抵扣。', source: '特殊关怀和补贴落实方案.pdf', len: 104, hash: 'e5f6g7h8' }
-                            );
-                            showToast('📁 文档分块(RAG-Chunking)及向量写入已成功完成！');
-                        }
-                    }, 800);
-                };
-
-                // 分片可视化数据
-                const mockChunks = ref([
-                    { content: '高龄津贴申报标准：凡年满70周岁至79周岁，具有本市户籍且无其他固定养老救助保障的普通老年人，均可按月领取本市100元高龄营养津贴补贴。外市户籍暂不支持直接发放。', source: '高龄津贴发放实施细则.pdf', len: 98, hash: 'f2a71d9e' },
-                    { content: '长期护理险评估条件：重度失能评级需满足Barthel指数测算低于40分，由专业医养评估团队上门进行动作行为量化测评，主要考察穿衣、洗澡、进食、控制排便、上下楼梯等10大项。', source: '长护险定点评估申报指南.pdf', len: 122, hash: 'c9b4e5a2' },
-                    { content: '糖尿病夏日食谱推荐：建议老年人以五谷杂粮等低GI复合碳水化合物为主，红薯中钾含量虽高但升糖指数中等，建议代替白米饭作为半份主食。切勿空腹大剂量用药后暴饮暴食。', source: '中国老年膳食指导手册.docx', len: 115, hash: 'd5c2e1f4' },
-                    { content: '系统养老卡绑定流程：家属在APP进入“用户中心”，点击“家属账号绑定”。输入被保障老人的姓名、18位身份证号，并点击由老人持卡人手机获取的四位验证码，即可一键合并查询。', source: '养老系统FAQ操作手册.txt', len: 107, hash: 'b1a8f9d0' }
-                ]);
-
-                // 问答日志
-                const mockQaLogs = ref([
-                    { id: 1, query: '75岁农村户口有多少补贴？', kb: '政策法规库', score: '0.892', rating: 'good' },
-                    { id: 2, query: '糖尿病老人吃红薯行吗？', kb: '健康科普库', score: '0.941', rating: 'good' },
-                    { id: 3, query: '长护险怎么才能免费申请？', kb: '政策法规库', score: '0.782', rating: 'bad' },
-                    { id: 4, query: '系统验证码收不到咋办？', kb: '平台操作库', score: '0.910', rating: 'good' }
-                ]);
-
-                const optimizeChunk = (log) => {
-                    showToast(`🛠️ 已将提问[${log.query}]标记为调优，已在当前向量数据库中对该长难句段进行了二次重切片及词义聚类优化！`);
-                    log.rating = 'good';
-                    log.score = '0.965';
-                };
-
-                const showOriginalDoc = (policy) => {
-                    if (!policy) return;
-                    const name = typeof policy === 'string' ? policy : (policy.name || policy.title || '');
-                    if (!name) return;
-                    const keyword = name.slice(0, 3);
-                    const chunk = mockChunks.value.find(c => c.source && c.source.includes(keyword)) || mockChunks.value[0];
-                    if (!chunk) return;
-                    citationDoc.value = {
-                        doc: chunk.source,
-                        page: '12',
-                        content: chunk.content
-                    };
-                };
-
                 // --- AI 助手核心状态及交互 ---
                 const aiOpen = ref(false);
                 const currentKbType = ref('platform'); // platform, policy, health, services
@@ -1542,15 +1326,6 @@
                 };
 
                 // 高亮引用源
-                const highlightCitation = (cite) => {
-                    const chunk = mockChunks.value.find(c => c.source === cite.doc) || mockChunks.value[0];
-                    citationDoc.value = {
-                        doc: cite.doc,
-                        page: cite.page,
-                        content: chunk.content
-                    };
-                };
-
                 // ── API 后端地址（与 FastAPI 同域部署时用相对路径）──
                 const API_BASE = window.location.hostname === 'localhost'
                     ? 'http://localhost:8000'
@@ -1666,7 +1441,7 @@
 
                 return {
                     isSeniorMode, currentTab, serviceTab, menuTabs,
-                    toggleSeniorMode, switchTab, toast, toastText, citationDoc,
+                    toggleSeniorMode, switchTab, toast, toastText, 
 
                     // 认证
                     authToken, authUser, authLoaded, showLoginModal, loginForm,
@@ -1682,15 +1457,15 @@
 
                     // 政策大厅
                     policies, policyLoading, fetchPolicies,
-                    calcForm, calcResult, calculateBenefits, showOriginalDoc,
+                    calcForm, calcResult, calculateBenefits, 
 
                     // 健康管理
                     pillList, pillForm, pillAlert, pillAlertName, pillAlertDose, addPill, deletePill, mockHealthArticles, triggerSOS,
                     healthProfile, healthLoaded, fetchHealthProfile, saveHealthProfile,
 
                     // RAG后台
-                    chunkSettings, uploadStatus, triggerMockUpload, mockChunks,
-                    mockQaLogs, optimizeChunk,
+                    
+                    
 
                     // AI 助手相关
                     aiOpen,
