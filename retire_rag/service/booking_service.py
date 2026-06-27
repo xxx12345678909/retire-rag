@@ -142,3 +142,7 @@ def get_user_bookings(user_id: int, limit: int = 20) -> list[dict]:
         return [dict(r) for r in rows]
     finally:
         conn.close()
+
+
+# 模块加载时自动初始化
+init_db()

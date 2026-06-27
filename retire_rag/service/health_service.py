@@ -77,3 +77,6 @@ def upsert_profile(
         return dict(row)
     finally:
         conn.close()
+
+
+init_db()

@@ -66,3 +66,6 @@ def get_family(user_id: int) -> list[dict]:
         return [dict(r) for r in rows]
     finally:
         conn.close()
+
+
+init_db()
