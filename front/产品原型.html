@@ -1564,11 +1564,24 @@
                     }, 600);
 
                     try {
+                        // 构建用户档案上下文（健康档案 + 家属信息）
+                        let contextQuery = userText;
+                        if (authUser.value && healthProfile.value.elder_name) {
+                            const hp = healthProfile.value;
+                            const parts = [`[用户档案] 老人：${hp.elder_name}，${hp.age}岁`];
+                            if (hp.chronic_diseases) parts.push(`慢性病：${hp.chronic_diseases}`);
+                            if (hp.medications) parts.push(`用药：${hp.medications}`);
+                            if (hp.notes) parts.push(`备注：${hp.notes}`);
+                            if (familyMembers.value.length) {
+                                parts.push('家属：' + familyMembers.value.map(m => `${m.name} ${m.phone}(${m.relation})`).join('；'));
+                            }
+                            contextQuery = parts.join('。') + '。\\n问题：' + userText;
+                        }
                         const response = await fetch(`${API_BASE}/api/v1/chat`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                query: userText,
+                                query: contextQuery,
                                 session_id: sessionId,
                                 use_agent: false
                             })
