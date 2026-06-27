@@ -99,9 +99,9 @@
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead><tr class="text-left text-xs text-slate-400 font-bold border-b border-slate-100">
-            <th class="py-2 pr-2">用户</th><th class="py-2 pr-2">服务</th><th class="py-2 pr-2">日期</th><th class="py-2 pr-2">时段</th><th class="py-2 pr-2">状态</th><th class="py-2 pr-2">时间</th>
+            <th class="py-2 pr-2">用户</th><th class="py-2 pr-2">服务</th><th class="py-2 pr-2">日期</th><th class="py-2 pr-2">时段</th><th class="py-2 pr-2">状态</th><th class="py-2 pr-2">时间</th><th class="py-2 pr-2">操作</th>
           </tr></thead>
-          <tbody id="bookings-table"><tr><td colspan="6" class="py-4 text-center text-slate-400">加载中...</td></tr></tbody>
+          <tbody id="bookings-table"><tr><td colspan="7" class="py-4 text-center text-slate-400">加载中...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -239,6 +239,9 @@ async function loadBookings() {
       var statusBadge = b.status === 'confirmed' ? '<span class="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">已确认</span>' :
                         b.status === 'pending' ? '<span class="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">待处理</span>' :
                         '<span class="text-xs bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">'+(b.status||'-')+'</span>';
+      var actions = b.status === 'pending'
+        ? '<button onclick="approveBooking('+b.id+',\'confirmed\')" class="text-xs bg-emerald-600 text-white px-2 py-1 rounded mr-1 hover:bg-emerald-700">通过</button><button onclick="approveBooking('+b.id+',\'cancelled\')" class="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">拒绝</button>'
+        : '<span class="text-xs text-slate-400">-</span>';
       html += '<tr class="border-b border-slate-50 hover:bg-slate-50">' +
         '<td class="py-2 pr-2 text-xs">'+(b.user_name||'-')+'</td>' +
         '<td class="py-2 pr-2 text-xs font-medium">'+b.service_name+' ('+b.price+'元/'+b.unit+')</td>' +
@@ -246,12 +249,23 @@ async function loadBookings() {
         '<td class="py-2 pr-2 text-xs">'+b.time_slot+'</td>' +
         '<td class="py-2 pr-2">'+statusBadge+'</td>' +
         '<td class="py-2 pr-2 text-xs text-slate-400">'+(b.created_at||'').substr(0,10)+'</td>' +
+        '<td class="py-2 pr-2">'+actions+'</td>' +
         '</tr>';
     });
-    document.getElementById('bookings-table').innerHTML = html || '<tr><td colspan="6" class="py-4 text-center text-slate-400">暂无预约</td></tr>';
+    document.getElementById('bookings-table').innerHTML = html || '<tr><td colspan="7" class="py-4 text-center text-slate-400">暂无预约</td></tr>';
   } catch(e) {
-    document.getElementById('bookings-table').innerHTML = '<tr><td colspan="6" class="py-4 text-center text-red-400">加载失败</td></tr>';
+    document.getElementById('bookings-table').innerHTML = '<tr><td colspan="7" class="py-4 text-center text-red-400">加载失败</td></tr>';
   }
+}
+
+async function approveBooking(id, status) {
+  try {
+    await authFetch('/admin/bookings/' + id + '/status', {
+      method: 'PUT',
+      body: JSON.stringify({status: status})
+    });
+    loadBookings();
+  } catch(e) { alert('操作失败: ' + e.message); }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -50,7 +50,7 @@ from service.chat_service import chat_service
 from service import persist
 from service import booking_service
 from service.institution_db import search_institutions, get_all_districts
-from service.booking_admin import get_all_bookings
+from service.booking_admin import get_all_bookings, update_booking_status
 from agent.react_agent import agent as react_agent
 from utils.config_handler import chroma_conf
 from utils.logger_handler import logger
@@ -462,6 +462,25 @@ async def admin_bookings(
     if not current_user or current_user["role"] != "admin":
         return JSONResponse({"error": "需要管理员权限"}, status_code=403)
     return {"data": get_all_bookings(limit)}
+
+
+class BookingStatusRequest(BaseModel):
+    status: str  # confirmed / cancelled
+
+
+@app.put("/admin/bookings/{booking_id}/status")
+async def admin_booking_status(
+    booking_id: int,
+    req: BookingStatusRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """管理员：审批预约（确认/取消）"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
+    ok = update_booking_status(booking_id, req.status)
+    if ok:
+        return {"message": "状态已更新"}
+    return JSONResponse({"error": "未找到该预约"}, status_code=404)
 
 
 # ═══════════════════════════════════════════════════════
