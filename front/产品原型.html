@@ -994,7 +994,8 @@
                         });
                         if (r.ok) {
                             const d = await r.json();
-                            if (d && d.elder_name) healthProfile.value = d;
+                            const p = d.data || d;
+                            if (p && p.elder_name) healthProfile.value = p;
                         }
                     } catch(e) {}
                     healthLoaded.value = true;
