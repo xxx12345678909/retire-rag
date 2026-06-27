@@ -3,7 +3,7 @@
  * Provides api() fetch wrapper, auth functions, and renderNavbar().
  */
 
-const API_BASE = window.location.hostname === 'localhost'
+var API_BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:8000'
     : '';
 
