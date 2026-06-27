@@ -473,7 +473,7 @@
                                         <button @click="consultPolicy(policy.name)" class="text-xs bg-white border border-blue-500 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-50 transition-all">
                                             🔍 政策智能匹配
                                         </button>
-                                        <button @click="showOriginalDoc(policy.name)" class="text-xs bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-300 transition-all">
+                                        <button @click="showOriginalDoc(policy)" class="text-xs bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-300 transition-all">
                                             📄 查看原文片段 (RAG源)
                                         </button>
                                     </div>
@@ -1398,8 +1398,11 @@
                     log.score = '0.965';
                 };
 
-                const showOriginalDoc = (policyName) => {
-                    const chunk = mockChunks.value.find(c => c.source.includes(policyName.slice(0, 3))) || mockChunks.value[0];
+                const showOriginalDoc = (policy) => {
+                    const name = policy?.name || policy || '';
+                    const keyword = name.slice(0, 3);
+                    const chunk = mockChunks.value.find(c => c.source.includes(keyword)) || mockChunks.value[0];
+                    if (!chunk) return;
                     citationDoc.value = {
                         doc: chunk.source,
                         page: '12',
