@@ -111,9 +111,36 @@
                         <i class="fa-solid" :class="isSeniorMode ? 'fa-user-clock' : 'fa-universal-access'"></i>
                         {{ isSeniorMode ? '☀️ 一键切回：标准版' : '👵 一键切换：适老版 (大字高对比)' }}
                     </button>
+                    <template v-if="authUser">
+                        <span class="text-sm font-medium text-slate-600">{{ authUser.username }}</span>
+                        <button @click="doLogout" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded-lg">退出</button>
+                    </template>
+                    <button v-else @click="showLoginModal = true" class="text-xs bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700">
+                        <i class="fa-solid fa-right-to-bracket mr-1"></i>登录
+                    </button>
                 </div>
             </div>
         </header>
+
+        <!-- 登录弹窗 -->
+        <div v-if="showLoginModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" @click.self="showLoginModal = false">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" :class="isSeniorMode ? 'text-xl' : ''">
+                <h3 class="font-bold text-lg mb-4">{{ isRegistering ? '注册新账号' : '登录' }}</h3>
+                <template v-if="!isRegistering">
+                    <input v-model="loginForm.username" placeholder="用户名" class="w-full border rounded-lg px-3 py-2 mb-3 text-sm">
+                    <input v-model="loginForm.password" type="password" placeholder="密码" class="w-full border rounded-lg px-3 py-2 mb-4 text-sm" @keyup.enter="doLogin">
+                    <button @click="doLogin" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold mb-2">登录</button>
+                    <p class="text-xs text-slate-400 text-center">还没有账号？<span @click="isRegistering = true" class="text-blue-600 cursor-pointer">注册</span></p>
+                </template>
+                <template v-else>
+                    <input v-model="registerForm.username" placeholder="用户名" class="w-full border rounded-lg px-3 py-2 mb-3 text-sm">
+                    <input v-model="registerForm.password" type="password" placeholder="密码（至少4位）" class="w-full border rounded-lg px-3 py-2 mb-3 text-sm">
+                    <input v-model="registerForm.phone" placeholder="手机号（选填）" class="w-full border rounded-lg px-3 py-2 mb-4 text-sm">
+                    <button @click="doRegister" class="w-full bg-emerald-600 text-white py-2 rounded-lg font-bold mb-2">注册</button>
+                    <p class="text-xs text-slate-400 text-center">已有账号？<span @click="isRegistering = false" class="text-blue-600 cursor-pointer">登录</span></p>
+                </template>
+            </div>
+        </div>
 
         <!-- 主体模块展示 -->
         <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-6">
@@ -864,13 +891,69 @@
                 const citationDoc = ref(null);
 
                 // --- 菜单列表 ---
-                const menuTabs = [
+                const menuTabs = ref([
                     { id: 'home', name: '首页入口', icon: 'fa-solid fa-house' },
                     { id: 'services', name: '养老服务', icon: 'fa-solid fa-hand-holding-heart' },
                     { id: 'policy', name: '政策大厅', icon: 'fa-solid fa-file-invoice-dollar' },
                     { id: 'health', name: '健康管理', icon: 'fa-solid fa-heart-pulse' },
-                    { id: 'admin', name: 'RAG知识库后台', icon: 'fa-solid fa-database' }
-                ];
+                    { id: 'user', name: '用户中心', icon: 'fa-solid fa-user' },
+                    { id: 'admin', name: '管理后台', icon: 'fa-solid fa-database' }
+                ]);
+
+                // ── 认证状态 ──
+                const authToken = ref(localStorage.getItem('auth_token') || '');
+                const authUser = ref(null);
+                const authLoaded = ref(false);
+                const showLoginModal = ref(false);
+                const loginForm = ref({ username: '', password: '' });
+                const registerForm = ref({ username: '', password: '', phone: '' });
+                const isRegistering = ref(false);
+
+                const loadAuth = async () => {
+                    if (!authToken.value) { authLoaded.value = true; return; }
+                    try {
+                        const r = await fetch(`${API_BASE}/api/auth/me`, {
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                        });
+                        if (r.ok) authUser.value = await r.json();
+                    } catch(e) {}
+                    authLoaded.value = true;
+                };
+
+                const doLogin = async () => {
+                    try {
+                        const r = await fetch(`${API_BASE}/api/auth/login`, {
+                            method: 'POST', headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify(loginForm.value)
+                        });
+                        const d = await r.json();
+                        if (d.ok) {
+                            localStorage.setItem('auth_token', d.token);
+                            authToken.value = d.token;
+                            authUser.value = { username: d.username, role: d.role };
+                            showLoginModal.value = false;
+                            showToast('登录成功');
+                        } else showToast('登录失败');
+                    } catch(e) { showToast('网络错误'); }
+                };
+
+                const doRegister = async () => {
+                    try {
+                        const r = await fetch(`${API_BASE}/api/auth/register`, {
+                            method: 'POST', headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify(registerForm.value)
+                        });
+                        const d = await r.json();
+                        if (d.ok) { isRegistering.value = false; showToast('注册成功，请登录'); }
+                        else showToast(d.error || '注册失败');
+                    } catch(e) { showToast('网络错误'); }
+                };
+
+                const doLogout = () => {
+                    localStorage.removeItem('auth_token');
+                    authToken.value = ''; authUser.value = null;
+                    showToast('已退出登录');
+                };
 
                 // --- 适老一键切换 ---
                 const toggleSeniorMode = () => {
@@ -902,68 +985,114 @@
                     }
                 };
 
-                // --- 养老机构筛选与预约 MOCK 数据与服务 ---
-                const mockInstitutes = [
-                    { id: 1, name: '北京爱心汇福国际养老院', district: '海淀区', address: '万泉河路102号', price: 6800, grade: '★★★★★ 五星级', tags: ['医养结合', '专属特级护理', '带独立小院'], cat: '海淀区' },
-                    { id: 2, name: '朝阳太阳宫康健老年公寓', district: '朝阳区', address: '太阳宫南街5号', price: 4200, grade: '★★★★ 四星级', tags: ['医保直通', '失能康复', '长护险定点'], cat: '朝阳区' },
-                    { id: 3, name: '西城白纸坊街道养老社区', district: '西城区', address: '南菜园街12号', price: 9200, grade: '★★★★★ 五星级', tags: ['社区全日托', '高配智能卫浴', '老年大学'], cat: '西城区' },
-                    { id: 4, name: '昌平回龙观暖心安养院', district: '昌平区', address: '回龙观西大街24号', price: 3500, grade: '★★★ 三星级', tags: ['特惠长租', '平价餐食', '全天候监护'], cat: '昌平区' }
-                ];
-                const filters = ref({ district: '全部', price: '全部', grade: '全部' });
+                // --- 养老机构查询（真实 API） ---
+                const institutes = ref([]);
+                const instLoading = ref(false);
+                const filters = ref({ district: '全部', care: '全部', price: '全部' });
 
-                const filteredInstitutes = computed(() => {
-                    return mockInstitutes.filter(inst => {
-                        const districtMatch = filters.value.district === '全部' || inst.district === filters.value.district;
-                        const gradeMatch = filters.value.grade === '全部' || inst.grade.includes(filters.value.grade);
-                        let priceMatch = true;
-                        if (filters.value.price !== '全部') {
-                            const budget = parseInt(filters.value.price);
-                            if (budget === 5000) priceMatch = inst.price < 5000;
-                            else if (budget === 8000) priceMatch = inst.price >= 5000 && inst.price <= 8000;
-                            else if (budget === 15000) priceMatch = inst.price > 8000;
-                        }
-                        return districtMatch && gradeMatch && priceMatch;
-                    });
-                });
+                const fetchInstitutes = async () => {
+                    instLoading.value = true;
+                    try {
+                        let url = `${API_BASE}/admin/institutions?limit=50`;
+                        if (filters.value.district !== '全部') url += '&district=' + encodeURIComponent(filters.value.district);
+                        if (filters.value.care !== '全部') url += '&care_level=' + encodeURIComponent(filters.value.care);
+                        if (filters.value.price !== '全部') url += '&price_max=' + filters.value.price;
+                        const r = await fetch(url);
+                        const d = await r.json();
+                        institutes.value = (d.data || []).map(inst => ({
+                            ...inst,
+                            id: inst.id,
+                            name: inst.name,
+                            district: inst.district,
+                            address: inst.address || '',
+                            price: inst.price_min,
+                            price_max: inst.price_max,
+                            beds: inst.beds_avail,
+                            beds_total: inst.beds_total,
+                            care_levels: (inst.care_levels || '').split(','),
+                            description: inst.description || '',
+                            contact: inst.contact || ''
+                        }));
+                    } catch(e) { institutes.value = []; }
+                    instLoading.value = false;
+                };
 
+                const filterInstitutes = () => fetchInstitutes();
                 const resetFilters = () => {
-                    filters.value = { district: '全部', price: '全部', grade: '全部' };
+                    filters.value = { district: '全部', care: '全部', price: '全部' };
+                    fetchInstitutes();
                 };
 
                 const bookInstitute = (name) => {
-                    showToast(`✅ 已为您预约[${name}]的免费参观与试住席位，专属护理经理将于10分钟内致电家属！`);
+                    showToast(`✅ 已为您记录对[${name}]的参观意向，专属护理经理将致电您！`);
                 };
 
-                // 居家上门预约表单与列表
-                const orderForm = ref({ serviceType: '助餐服务', elderName: '陈大伯', address: '北京市朝阳区北苑家园12号楼2单元101', time: '' });
-                const orderList = ref([
-                    { id: 1, type: '助洁服务', name: '陈大伯', addr: '北京市朝阳区北苑家园12号楼101', time: '2026-06-28 14:00' }
-                ]);
-                const submitOrder = () => {
-                    if (!orderForm.value.elderName || !orderForm.value.address) {
-                        showToast('❌ 请填写完整的服务对象姓名和上门地址！');
-                        return;
-                    }
-                    orderList.value.push({
-                        id: Date.now(),
-                        type: orderForm.value.serviceType,
-                        name: orderForm.value.elderName,
-                        addr: orderForm.value.address,
-                        time: orderForm.value.time || '2026-06-28 10:00'
-                    });
-                    showToast('🎉 预约成功！服务单已录入，护理员将在约定时间前与您通话确认');
+                // 居家上门预约（真实 API）
+                const serviceList = ref([]);
+                const orderForm = ref({ service_id: '', service_name: '', date: '', time_slot: '上午', notes: '' });
+                const orderList = ref([]);
+                const orderLoading = ref(false);
+
+                const fetchServices = async () => {
+                    try {
+                        const r = await fetch(`${API_BASE}/api/services`);
+                        const d = await r.json();
+                        serviceList.value = d.data || d || [];
+                    } catch(e) {}
+                };
+
+                const fetchOrders = async () => {
+                    if (!authToken.value) return;
+                    orderLoading.value = true;
+                    try {
+                        const r = await fetch(`${API_BASE}/api/services/orders`, {
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                        });
+                        const d = await r.json();
+                        orderList.value = Array.isArray(d) ? d : (d.data || []);
+                    } catch(e) {}
+                    orderLoading.value = false;
+                };
+
+                const submitOrder = async () => {
+                    if (!authToken.value) { showToast('请先登录'); return; }
+                    if (!orderForm.value.service_id) { showToast('请选择服务类型'); return; }
+                    try {
+                        const r = await fetch(`${API_BASE}/api/services/book`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+                            body: JSON.stringify({
+                                service_id: orderForm.value.service_id,
+                                date: orderForm.value.date || new Date().toISOString().slice(0,10),
+                                time_slot: orderForm.value.time_slot,
+                                notes: orderForm.value.notes
+                            })
+                        });
+                        const d = await r.json();
+                        if (r.ok) {
+                            showToast('预约成功！护理员将按时上门服务');
+                            fetchOrders();
+                        } else showToast(d.error || '预约失败');
+                    } catch(e) { showToast('网络错误'); }
                 };
                 const cancelOrder = (id) => {
-                    orderList.value = orderList.value.filter(o => o.id !== id);
-                    showToast('🗑️ 服务预约单已撤销。');
+                    showToast('如需取消请联系客服');
                 };
 
-                // --- 养老政策大厅 MOCK ---
-                const mockPolicies = [
-                    { id: 1, cat: '高龄津贴', name: '2026年本市调整高龄老人津贴发放实施细则', date: '2026-03-01', summary: '针对年满70周岁至79周岁、80周岁至89周岁、90周岁及以上的老人按月发放津贴，本市户籍办理直通车。' },
-                    { id: 2, cat: '长期护理险', name: '关于长期护理保险(长护险)全城无障碍评估申报指南', date: '2026-01-15', summary: '重度失能的老人因残疾或慢病丧失自理能力者，可通过本指南进行线上评估，通过后可享受免费专业上门照料服务，费用大额由保金支付。' },
-                    { id: 3, cat: '养老补贴', name: '独生子女父母年老特殊养老服务消费券增发办法', date: '2026-05-10', summary: '规定本市特殊家庭老年人可免费申领300元至800元不等居家消费卡。' }
-                ];
+                // --- 养老政策大厅（真实 API） ---
+                const policies = ref([]);
+                const policyLoading = ref(false);
+                const fetchPolicies = async () => {
+                    policyLoading.value = true;
+                    try {
+                        const r = await fetch(`${API_BASE}/api/policy/list`);
+                        const d = await r.json();
+                        policies.value = (d.categories || []).flatMap(c =>
+                            (c.policies || []).map(p => ({ ...p, cat: c.name, catIcon: c.icon }))
+                        );
+                    } catch(e) { policies.value = []; }
+                    policyLoading.value = false;
+                };
                 
                 // 福利智能测算
                 const calcForm = ref({ age: '', hukou: '本地户籍', disabled: '完全自理' });
@@ -1301,49 +1430,29 @@
                 };
 
                 return {
-                    isSeniorMode,
-                    currentTab,
-                    serviceTab,
-                    menuTabs,
-                    toggleSeniorMode,
-                    switchTab,
-                    toast,
-                    toastText,
-                    citationDoc,
-                    
+                    isSeniorMode, currentTab, serviceTab, menuTabs,
+                    toggleSeniorMode, switchTab, toast, toastText, citationDoc,
+
+                    // 认证
+                    authToken, authUser, authLoaded, showLoginModal, loginForm,
+                    registerForm, isRegistering, doLogin, doRegister, doLogout, loadAuth,
+
                     // 养老大厅
-                    mockInstitutes,
-                    filters,
-                    filteredInstitutes,
-                    resetFilters,
-                    bookInstitute,
-                    orderForm,
-                    orderList,
-                    submitOrder,
-                    cancelOrder,
-                    
+                    institutes, instLoading, filters, filterInstitutes,
+                    resetFilters, bookInstitute, fetchInstitutes,
+                    serviceList, orderForm, orderList, orderLoading,
+                    submitOrder, cancelOrder, fetchServices, fetchOrders,
+
                     // 政策大厅
-                    mockPolicies,
-                    calcForm,
-                    calcResult,
-                    calculateBenefits,
-                    showOriginalDoc,
+                    policies, policyLoading, fetchPolicies,
+                    calcForm, calcResult, calculateBenefits, showOriginalDoc,
 
                     // 健康管理
-                    pillList,
-                    pillForm,
-                    addPill,
-                    deletePill,
-                    mockHealthArticles,
-                    triggerSOS,
+                    pillList, pillForm, addPill, deletePill, mockHealthArticles, triggerSOS,
 
                     // RAG后台
-                    chunkSettings,
-                    uploadStatus,
-                    triggerMockUpload,
-                    mockChunks,
-                    mockQaLogs,
-                    optimizeChunk,
+                    chunkSettings, uploadStatus, triggerMockUpload, mockChunks,
+                    mockQaLogs, optimizeChunk,
 
                     // AI 助手相关
                     aiOpen,
