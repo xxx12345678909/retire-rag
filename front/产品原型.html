@@ -112,6 +112,7 @@
                         {{ isSeniorMode ? '☀️ 一键切回：标准版' : '👵 一键切换：适老版 (大字高对比)' }}
                     </button>
                     <template v-if="authUser">
+                        <a v-if="authUser.role === 'admin'" href="/front/admin.html" class="text-xs bg-purple-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-purple-700">管理后台</a>
                         <span class="text-sm font-medium text-slate-600">{{ authUser.username }}</span>
                         <button @click="doLogout" class="text-xs bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded-lg">退出</button>
                     </template>
@@ -632,8 +633,8 @@
                 </template>
             </div>
 
-            <!-- 模块 6: RAG后台管理与知识库运维 (RAG闭环展示) -->
-            <div v-if="currentTab === 'admin'" class="space-y-6">
+            <!-- 管理后台入口移至 /front/admin.html -->
+            <div v-if="false" class="space-y-6">
                 <div class="bg-slate-900 text-white p-6 rounded-2xl shadow">
                     <h2 class="font-extrabold text-xl mb-1">🤖 养老专属 RAG 知识库后台运维端</h2>
                     <p class="text-slate-400 text-xs">在这里，管理员可以批量导入政策或医疗科普文件、进行向量化自动文本分片调节、查看提问日志以及优化 RAG 召回精度。</p>
@@ -922,8 +923,7 @@
                     { id: 'services', name: '养老服务', icon: 'fa-solid fa-hand-holding-heart' },
                     { id: 'policy', name: '政策大厅', icon: 'fa-solid fa-file-invoice-dollar' },
                     { id: 'health', name: '健康管理', icon: 'fa-solid fa-heart-pulse' },
-                    { id: 'user', name: '用户中心', icon: 'fa-solid fa-user' },
-                    { id: 'admin', name: '管理后台', icon: 'fa-solid fa-database' }
+                    { id: 'user', name: '用户中心', icon: 'fa-solid fa-user' }
                 ]);
 
                 // ── 认证状态 ──
