@@ -5,6 +5,7 @@ ChatService — 智慧养老AI助手业务大脑
 """
 
 from rag.rag_service import rag_service
+from rag.query_expander import query_expander
 from utils.logger_handler import logger
 
 
@@ -120,12 +121,11 @@ class ChatService:
     # ── 业务流 ───────────────────────────────────
 
     def policy_flow(self, query: str) -> dict:
-        """政策匹配流：提取用户条件 + RAG检索政策库"""
+        """政策匹配流：关键词扩展 + 多路RAG检索政策库"""
         logger.info(f"[policy_flow]处理政策类问题：{query[:50]}...")
 
-        # RAG检索政策知识库
-        docs = rag_service.search(query, kb="policy")
-        context = rag_service.retrieve_context(query, kb="policy")
+        expanded = query_expander.expand(query)
+        context, docs = rag_service.multi_retrieve_context(expanded, kb="policy")
         sources = rag_service.get_sources(docs)
 
         answer = self._assemble_policy_answer(query, context, docs)
@@ -138,11 +138,11 @@ class ChatService:
         }
 
     def service_flow(self, query: str) -> dict:
-        """服务导办流：RAG检索服务库 → 推荐"""
+        """服务导办流：关键词扩展 + 多路RAG检索服务库"""
         logger.info(f"[service_flow]处理服务类问题：{query[:50]}...")
 
-        docs = rag_service.search(query, kb="service")
-        context = rag_service.retrieve_context(query, kb="service")
+        expanded = query_expander.expand(query)
+        context, docs = rag_service.multi_retrieve_context(expanded, kb="service")
         sources = rag_service.get_sources(docs)
 
         answer = self._assemble_service_answer(query, context, docs)
@@ -155,11 +155,11 @@ class ChatService:
         }
 
     def health_flow(self, query: str) -> dict:
-        """健康问答流：RAG检索健康库 + 强制免责声明"""
+        """健康问答流：关键词扩展 + 多路RAG检索健康库"""
         logger.info(f"[health_flow]处理健康类问题：{query[:50]}...")
 
-        docs = rag_service.search(query, kb="health")
-        context = rag_service.retrieve_context(query, kb="health")
+        expanded = query_expander.expand(query)
+        context, docs = rag_service.multi_retrieve_context(expanded, kb="health")
         sources = rag_service.get_sources(docs)
 
         answer = self._assemble_health_answer(query, context, docs)
@@ -172,11 +172,11 @@ class ChatService:
         }
 
     def general_flow(self, query: str) -> dict:
-        """通用RAG流：默认检索平台操作库"""
+        """通用RAG流：关键词扩展 + 多路RAG检索平台库"""
         logger.info(f"[general_flow]处理通用问题：{query[:50]}...")
 
-        docs = rag_service.search(query, kb="platform")
-        context = rag_service.retrieve_context(query, kb="platform")
+        expanded = query_expander.expand(query)
+        context, docs = rag_service.multi_retrieve_context(expanded, kb="platform")
         sources = rag_service.get_sources(docs)
 
         answer = self._assemble_general_answer(query, context, docs)
