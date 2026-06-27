@@ -99,25 +99,22 @@
 <script>
 const API_BASE = 'http://localhost:8000';
 
-// 权限检查
-async function checkAdmin() {
+// 权限检查 — 直接从 token 解码
+function checkAdmin() {
   var token = localStorage.getItem('auth_token');
   if (!token) {
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('no-access').classList.remove('hidden');
     return false;
   }
-  // API 验证角色
   try {
-    var u = await authFetch('/api/auth/me');
-    if (u && u.role === 'admin') {
+    var parts = atob(token).split(':');
+    if (parts.length >= 3 && parts[2] === 'admin') {
       document.getElementById('loading').classList.add('hidden');
       document.getElementById('admin-content').classList.remove('hidden');
       return true;
     }
-  } catch(e) {
-    console.error('checkAdmin error:', e);
-  }
+  } catch(e) {}
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('no-access').classList.remove('hidden');
   return false;
@@ -229,10 +226,9 @@ async function dryRun() {
 
 function escapeHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-document.addEventListener('DOMContentLoaded', async function() {
-  renderNavbar();
-  var ok = await checkAdmin();
-  if (ok) { loadStats(); loadLogs(); }
+document.addEventListener('DOMContentLoaded', function() {
+  try { renderNavbar(); } catch(e) { console.error(e); }
+  if (checkAdmin()) { loadStats(); loadLogs(); }
 });
 </script>
 </body>
