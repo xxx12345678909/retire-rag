@@ -538,7 +538,7 @@ async def family_bind(
     member = bind_family(
         user_id=current_user["id"],
         name=req.name,
-        id_card=req.id_card,
+        phone=req.phone,
         relation=req.relation,
         notes=req.notes,
     )
