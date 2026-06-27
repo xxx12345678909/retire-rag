@@ -740,7 +740,7 @@
                             <!-- RAG 溯源引用展示 -->
                             <div v-if="msg.citations && msg.citations.length > 0" class="mt-2.5 pt-2 border-t border-dashed" :class="msg.role === 'user'?'border-blue-400 text-blue-100':'border-slate-100 text-slate-400'">
                                 <p class="text-[10px] font-bold mb-1"><i class="fa-solid fa-square-share-nodes"></i> 本次生成参考了以下 RAG 知识片段：</p>
-                                <div v-for="(cite, cIdx) in msg.citations" :key="cIdx" @click="highlightCitation(cite)" class="text-[9px] bg-slate-100 text-slate-600 px-2 py-1 rounded mt-1 cursor-pointer hover:bg-slate-200 transition-all block max-w-full truncate">
+                                <div v-for="(cite, cIdx) in msg.citations" :key="cIdx"  class="text-[9px] bg-slate-100 text-slate-600 px-2 py-1 rounded mt-1 cursor-pointer hover:bg-slate-200 transition-all block max-w-full truncate">
                                     📄 {{ cite.doc }} (第 {{ cite.page }} 页)
                                 </div>
                             </div>
@@ -1486,7 +1486,7 @@
                     sendPresetQuestion,
                     simulateSpeech,
                     speakText,
-                    highlightCitation,
+                    
                     handleSendMessage
                 };
             }
