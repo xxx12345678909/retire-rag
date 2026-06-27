@@ -51,6 +51,7 @@ from service import persist
 from agent.react_agent import agent as react_agent
 from utils.config_handler import chroma_conf
 from utils.logger_handler import logger
+from utils.debug import Trace, runtime, DEBUG
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -110,27 +111,25 @@ class FeedbackRequest(BaseModel):
 
 @app.post("/api/v1/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    """统一对话入口
+    """统一对话入口"""
+    runtime.requests += 1
+    trace = Trace(req.query)
+    logger.info(f"[API] trace={trace.trace_id} query={req.query[:80]}...")
 
-    支持两种模式：
-    - ChatService（默认）：规则意图路由 + 模板化回答，快速稳定
-    - React Agent：LLM自主思考 + 工具调用，更智能但更慢
-    """
-    logger.info(f"[API]收到提问：{req.query[:80]}... session={req.session_id}")
-
-    # 诊断拒答
+    # ── 诊断拒答 ──
     intent = chat_service.detect_intent(req.query)
+    trace.step("intent", intent)
     if intent == "reject_diagnosis":
         return chat_service.reject_diagnosis()
 
+    # ── 执行 ──
     if req.use_agent and react_agent is not None and react_agent.agent is not None:
-        # React Agent 模式
+        trace.step("agent_start")
         answer = react_agent.execute(req.query)
+        trace.step("agent_done")
+        trace.log()
         return ChatResponse(
-            answer=answer,
-            intent=intent,
-            kb=None,
-            sources=[],
+            answer=answer, intent=intent, kb=None, sources=[],
             disclaimer=(
                 "⚠️ 免责声明：以上内容仅供科普参考，不构成医疗诊断或处方建议。"
                 if intent == "health" else None
@@ -138,12 +137,12 @@ async def chat(req: ChatRequest):
             session_id=req.session_id,
         )
 
-    # ChatService 模式（推荐）
     result = chat_service.handle(req.query, req.session_id)
+    trace.step("done", f"kb={result.get('kb')}")
 
-    # 记录日志（SQLite 持久化）
+    # ── 持久化 ──
     log_entry = {
-        "id": uuid.uuid4().hex[:12],
+        "id": trace.trace_id,
         "timestamp": datetime.now().isoformat(),
         "query": req.query,
         "answer": result["answer"][:2000],
@@ -154,9 +153,9 @@ async def chat(req: ChatRequest):
         "session_id": req.session_id,
     }
     persist.save_qa_log(log_entry)
-    logger.info(f"[QA日志]id={log_entry['id']} intent={log_entry['intent']} kb={log_entry['kb']}")
+    trace.log()
 
-    return ChatResponse(
+    response = ChatResponse(
         answer=result["answer"],
         intent=result.get("intent"),
         kb=result.get("kb"),
@@ -164,6 +163,16 @@ async def chat(req: ChatRequest):
         disclaimer=result.get("disclaimer"),
         session_id=req.session_id,
     )
+
+    # 调试模式：附加 trace 信息
+    if DEBUG:
+        return JSONResponse({
+            **response.model_dump(),
+            "_debug": trace.summary(),
+            "_stats": runtime.snapshot(),
+        })
+
+    return response
 
 
 # ═══════════════════════════════════════════════════════
@@ -293,6 +302,54 @@ async def update_chunk_cfg(key: str, value: str):
     """更新分片配置"""
     persist.save_chunk_config(key, value)
     return {"message": "配置已更新", "key": key, "value": value}
+
+
+# ═══════════════════════════════════════════════════════
+# 调试端点
+# ═══════════════════════════════════════════════════════
+
+@app.get("/admin/debug/stats")
+async def debug_stats():
+    """运行时统计：LLM调用次数、缓存命中率、最近错误"""
+    from rag.query_expander import query_expander
+    return {
+        "runtime": runtime.snapshot(),
+        "kb_stats": {
+            kb: rag_service.get_vector_count(kb)
+            for kb in rag_service.KB_NAMES
+        },
+    }
+
+
+@app.post("/admin/debug/dry-run")
+async def debug_dry_run(req: ChatRequest):
+    """空跑模式：只执行检索和意图识别，不调 LLM（用于测试 RAG 覆盖）"""
+    from rag.query_expander import query_expander
+
+    trace = Trace(req.query)
+    intent = chat_service.detect_intent(req.query)
+    trace.step("intent", intent)
+
+    if intent == "reject_diagnosis":
+        return {"intent": intent, "kb": None, "docs": 0, "trace": trace.summary()}
+
+    # 执行扩展 + 检索，但不调 LLM 生成回答
+    kb_map = {"policy": "policy", "service": "service", "health": "health", "general": "platform"}
+    kb = kb_map.get(intent, "platform")
+
+    expanded = query_expander.expand(req.query)
+    docs = rag_service.multi_search(expanded, kb=kb)
+    trace.step("retrieve", f"{len(docs)} docs")
+
+    trace.log()
+    return {
+        "intent": intent,
+        "kb": kb,
+        "expanded_queries": expanded,
+        "docs_found": len(docs),
+        "sources": rag_service.get_sources(docs),
+        "trace": trace.summary(),
+    }
 
 
 # ═══════════════════════════════════════════════════════
