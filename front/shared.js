@@ -78,9 +78,13 @@ async function api(url, options = {}) {
     if (config.headers) {
         config.headers = { 'Content-Type': 'application/json', ...config.headers };
     }
+    if (config.body && typeof config.body === 'object') {
+        config.body = JSON.stringify(config.body);
+    }
     const response = await fetch(`${API_BASE}${url}`, config);
     if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errText = await response.text();
+        throw new Error(errText || `HTTP ${response.status}`);
     }
     return response.json();
 }
