@@ -634,6 +634,25 @@
                             <div><span class="text-slate-400">角色：</span><span class="font-bold">{{ authUser.role === 'admin' ? '管理员' : '普通用户' }}</span></div>
                         </div>
                     </div>
+                    <!-- 家属绑定 -->
+                    <div class="bg-white rounded-2xl border p-6 shadow-sm">
+                        <h2 class="font-bold text-xl mb-4">👨‍👩‍👦 家属绑定</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end mb-4">
+                            <div><label class="block text-xs text-slate-400 mb-1">姓名</label><input v-model="familyForm.name" placeholder="家属姓名" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+                            <div><label class="block text-xs text-slate-400 mb-1">手机号</label><input v-model="familyForm.phone" placeholder="紧急联系电话" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+                            <div><label class="block text-xs text-slate-400 mb-1">关系</label><select v-model="familyForm.relation" class="w-full border rounded-lg px-3 py-2 text-sm bg-slate-50"><option value="配偶">配偶</option><option value="父母">父母</option><option value="子女">子女</option><option value="其他">其他</option></select></div>
+                            <button @click="bindFamily" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">确认绑定</button>
+                        </div>
+                        <p v-if="familyMsg" :class="familyMsgType === 'ok' ? 'text-emerald-600' : 'text-red-500'" class="text-xs">{{ familyMsg }}</p>
+                        <div v-if="familyMembers.length" class="mt-4 pt-4 border-t">
+                            <p class="text-xs font-bold text-slate-500 mb-2">已绑定家属成员</p>
+                            <div v-for="m in familyMembers" :key="m.id" class="flex justify-between items-center py-2 border-b text-sm">
+                                <span class="font-bold">{{ m.name }}</span>
+                                <span class="text-slate-400">{{ m.relation }}</span>
+                                <span class="text-slate-400">📱 {{ m.phone || '-' }}</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="bg-white rounded-2xl border p-6 shadow-sm">
                         <h2 class="font-bold text-xl mb-4">📋 我的预约</h2>
                         <div v-if="orderList.length === 0" class="text-slate-400 text-sm">暂无预约记录</div>
@@ -975,6 +994,7 @@
                             authToken.value = d.token;
                             authUser.value = { username: d.username, role: d.role };
                             showLoginModal.value = false;
+                            fetchFamily();
                             showToast('登录成功');
                         } else showToast('登录失败');
                     } catch(e) { showToast('网络错误'); }
@@ -995,7 +1015,53 @@
                 const doLogout = () => {
                     localStorage.removeItem('auth_token');
                     authToken.value = ''; authUser.value = null;
+                    familyMembers.value = [];
                     showToast('已退出登录');
+                };
+
+                // ── 家属绑定 ──
+                const familyForm = ref({ name: '', phone: '', relation: '父母' });
+                const familyMembers = ref([]);
+                const familyMsg = ref('');
+                const familyMsgType = ref('ok');
+
+                const fetchFamily = async () => {
+                    if (!authToken.value) return;
+                    try {
+                        const r = await fetch(`${API_BASE}/api/user/family`, {
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                        });
+                        const d = await r.json();
+                        familyMembers.value = Array.isArray(d) ? d : (d.data || []);
+                    } catch(e) {}
+                };
+
+                const bindFamily = async () => {
+                    if (!familyForm.value.name || !familyForm.value.phone) {
+                        familyMsg.value = '请填写家属姓名和手机号';
+                        familyMsgType.value = 'err';
+                        return;
+                    }
+                    try {
+                        const r = await fetch(`${API_BASE}/api/user/family-bind`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+                            body: JSON.stringify(familyForm.value)
+                        });
+                        const d = await r.json();
+                        if (r.ok) {
+                            familyMsg.value = '绑定成功';
+                            familyMsgType.value = 'ok';
+                            familyForm.value = { name: '', phone: '', relation: '父母' };
+                            fetchFamily();
+                        } else {
+                            familyMsg.value = d.error || '绑定失败';
+                            familyMsgType.value = 'err';
+                        }
+                    } catch(e) {
+                        familyMsg.value = '网络错误';
+                        familyMsgType.value = 'err';
+                    }
                 };
 
                 // --- 适老一键切换 ---
@@ -1518,6 +1584,8 @@
                     // 认证
                     authToken, authUser, authLoaded, showLoginModal, loginForm,
                     registerForm, isRegistering, doLogin, doRegister, doLogout, loadAuth,
+                    // 家属绑定
+                    familyForm, familyMembers, familyMsg, familyMsgType, bindFamily, fetchFamily,
 
                     // 养老大厅
                     institutes, instLoading, filters, filterInstitutes,
