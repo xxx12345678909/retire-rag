@@ -414,7 +414,8 @@
                                 📭 暂无待处理预约订单，请在左侧添加预约
                             </div>
                             <div v-else class="space-y-3">
-                                <div v-for="order in orderList" :key="order.id" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row justify-between gap-4">
+                                <template v-for="order in orderList" :key="order.id">
+                                <div v-if="order.status !== 'cancelled'" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2 mb-1">
                                             <span class="font-bold text-sm">{{ order.service_name }}</span>
@@ -429,6 +430,7 @@
                                         取消预约
                                     </button>
                                 </div>
+                                </template>
                             </div>
                         </div>
 
@@ -641,7 +643,7 @@
                                 <span class="text-slate-400 ml-2">{{ o.date }} {{ o.time_slot }}</span>
                             </div>
                             <span :class="o.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs' : 'bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs'">
-                                {{ o.status === 'confirmed' ? '已确认' : '待处理' }}
+                                {{ o.status === 'confirmed' ? '已确认' : '已取消' }}
                             </span>
                         </div>
                     </div>
@@ -1112,8 +1114,17 @@
                         } else showToast(d.error || '预约失败');
                     } catch(e) { showToast('网络错误'); }
                 };
-                const cancelOrder = (id) => {
-                    showToast('如需取消请联系客服');
+                const cancelOrder = async (id) => {
+                    if (!authToken.value) { showToast('请先登录'); return; }
+                    try {
+                        const r = await fetch(`${API_BASE}/admin/bookings/${id}/status`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+                            body: JSON.stringify({ status: 'cancelled' })
+                        });
+                        if (r.ok) { showToast('预约已取消'); fetchOrders(); }
+                        else showToast('取消失败');
+                    } catch(e) { showToast('网络错误'); }
                 };
 
                 // --- 养老政策大厅（真实 API） ---
