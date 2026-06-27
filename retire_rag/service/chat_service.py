@@ -103,15 +103,15 @@ class ChatService:
             if p in q:
                 return "reject_diagnosis"
 
+        # 政策类（优先于健康，避免档案中的健康词劫持政策问题）
+        for kw in self.POLICY_KEYWORDS:
+            if kw in q:
+                return "policy"
+
         # 健康科普类
         for kw in self.HEALTH_KEYWORDS:
             if kw in q:
                 return "health"
-
-        # 政策类
-        for kw in self.POLICY_KEYWORDS:
-            if kw in q:
-                return "policy"
 
         # 服务类
         for kw in self.SERVICE_KEYWORDS:
