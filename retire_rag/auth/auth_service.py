@@ -109,3 +109,6 @@ def get_user_by_token(token: str) -> dict | None:
             conn.close()
     except Exception:
         return None
+
+
+init_db()
