@@ -51,6 +51,7 @@ from service import persist
 from service import booking_service
 from service.institution_db import search_institutions, get_all_districts
 from service.booking_admin import get_all_bookings, update_booking_status
+from service.sos_service import trigger_sos as sos_trigger, get_active_alerts as sos_active, resolve_alert as sos_resolve
 from agent.react_agent import agent as react_agent
 from utils.config_handler import chroma_conf
 from utils.logger_handler import logger
@@ -580,6 +581,36 @@ async def health_profile_update(
         notes=req.notes,
     )
     return {"message": "保存成功", "data": profile}
+
+
+# ═══════════════════════════════════════════════════════
+# 紧急呼叫 (SOS)
+# ═══════════════════════════════════════════════════════
+
+@app.post("/api/sos/trigger")
+async def sos_trigger_endpoint(current_user: dict = Depends(get_current_user)):
+    """用户触发紧急呼叫"""
+    username = current_user["username"] if current_user else "匿名用户"
+    user_id = current_user["id"] if current_user else None
+    alert = sos_trigger(user_id=user_id, username=username, message="紧急求助！请立即联系！")
+    return {"message": "紧急呼叫已发送，工作人员将尽快响应", "alert": alert}
+
+
+@app.get("/admin/sos/alerts")
+async def sos_alerts(current_user: dict = Depends(get_current_user)):
+    """管理员：获取活跃 SOS 警报"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
+    return {"data": sos_active()}
+
+
+@app.put("/admin/sos/{alert_id}/resolve")
+async def sos_mark_resolved(alert_id: int, current_user: dict = Depends(get_current_user)):
+    """管理员：标记 SOS 已处理"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
+    sos_resolve(alert_id)
+    return {"message": "已标记为已处理"}
 
 
 

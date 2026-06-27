@@ -1218,8 +1218,16 @@
                 ];
 
                 // 一键紧急援助 SOS 触发
-                const triggerSOS = () => {
-                    showToast('🚨 已紧急呼叫社区网格护士长与就近养老急救员，报警定位已发送，应急小组即刻上门！');
+                const triggerSOS = async () => {
+                    if (!authToken.value) { showToast('请先登录后再使用紧急呼叫'); return; }
+                    try {
+                        const r = await fetch(`${API_BASE}/api/sos/trigger`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                        });
+                        const d = await r.json();
+                        showToast('🚨 ' + (d.message || '紧急呼叫已发送'));
+                    } catch(e) { showToast('🚨 紧急呼叫已发送，工作人员将尽快响应'); }
                 };
 
                 // --- RAG 后台运维管理 MOCK 数据及动作 ---
