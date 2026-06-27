@@ -5,18 +5,7 @@ QueryExpander — 查询关键词扩展器
 多路召回后合并去重，提升知识库覆盖率。
 """
 
-# ── 修补损坏的 packaging 元数据 ─────────────────
-import importlib.metadata as _importlib_metadata
-_orig_version = _importlib_metadata.version
-
-def _patched_version(package_name: str) -> str:
-    v = _orig_version(package_name)
-    if v is None and package_name == "packaging":
-        return "26.2"
-    return v
-
-_importlib_metadata.version = _patched_version
-# ──────────────────────────────────────────────
+from utils.packaging_patch import *  # noqa: F401,F403
 
 from model.factory import chat_model
 from utils.logger_handler import logger
@@ -51,9 +40,10 @@ class QueryExpander:
         """
         key = query.strip()
 
-        # ── 缓存命中 ──
+        # ── 缓存命中（LRU：命中时移到末尾）──
         if key in self._cache:
             self._hits += 1
+            self._cache[key] = self._cache.pop(key)  # 移到末尾，实现真 LRU
             logger.info(
                 f"[QueryExpander]缓存命中 ({self._hits}h/{self._misses}m): "
                 f"{key[:30]}... → {len(self._cache[key])}个词"

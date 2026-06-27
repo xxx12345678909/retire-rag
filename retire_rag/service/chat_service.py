@@ -79,7 +79,7 @@ class ChatService:
     def detect_intent(self, query: str) -> str:
         """基于关键词的意图识别（方案A - 稳定可靠）
 
-        优先级：health > policy > service > general
+        实际优先级：reject_diagnosis > policy > health > service > general
         """
         q = query.lower()
 

@@ -14,6 +14,7 @@
 from langchain_core.tools import tool
 
 from rag.rag_service import rag_service
+from rag.query_expander import query_expander
 from utils.logger_handler import logger
 import random
 
@@ -38,11 +39,12 @@ def rag_retrieve_policy(query: str) -> str:
         知识库中的原始参考资料文本
     """
     try:
-        result = rag_service.retrieve_context(query, kb="policy")
+        expanded = query_expander.expand(query)
+        result = rag_service.multi_retrieve_context(expanded, kb="policy")[0]
         if "未找到" in result:
             logger.warning(f"[rag_retrieve_policy]未找到：{query}")
             return result
-        logger.info(f"[rag_retrieve_policy]检索成功：{query}")
+        logger.info(f"[rag_retrieve_policy]检索成功（扩展{len(expanded)}词）：{query}")
         return result
     except Exception as e:
         logger.error(f"[rag_retrieve_policy]失败：{str(e)}")
@@ -64,11 +66,12 @@ def rag_retrieve_service(query: str) -> str:
         知识库中的原始参考资料文本
     """
     try:
-        result = rag_service.retrieve_context(query, kb="service")
+        expanded = query_expander.expand(query)
+        result = rag_service.multi_retrieve_context(expanded, kb="service")[0]
         if "未找到" in result:
             logger.warning(f"[rag_retrieve_service]未找到：{query}")
             return result
-        logger.info(f"[rag_retrieve_service]检索成功：{query}")
+        logger.info(f"[rag_retrieve_service]检索成功（扩展{len(expanded)}词）：{query}")
         return result
     except Exception as e:
         logger.error(f"[rag_retrieve_service]失败：{str(e)}")
@@ -92,11 +95,12 @@ def rag_retrieve_health(query: str) -> str:
         知识库中的原始参考资料文本
     """
     try:
-        result = rag_service.retrieve_context(query, kb="health")
+        expanded = query_expander.expand(query)
+        result = rag_service.multi_retrieve_context(expanded, kb="health")[0]
         if "未找到" in result:
             logger.warning(f"[rag_retrieve_health]未找到：{query}")
             return result
-        logger.info(f"[rag_retrieve_health]检索成功：{query}")
+        logger.info(f"[rag_retrieve_health]检索成功（扩展{len(expanded)}词）：{query}")
         return result
     except Exception as e:
         logger.error(f"[rag_retrieve_health]失败：{str(e)}")
@@ -118,11 +122,12 @@ def rag_retrieve_platform(query: str) -> str:
         知识库中的原始参考资料文本
     """
     try:
-        result = rag_service.retrieve_context(query, kb="platform")
+        expanded = query_expander.expand(query)
+        result = rag_service.multi_retrieve_context(expanded, kb="platform")[0]
         if "未找到" in result:
             logger.warning(f"[rag_retrieve_platform]未找到：{query}")
             return result
-        logger.info(f"[rag_retrieve_platform]检索成功：{query}")
+        logger.info(f"[rag_retrieve_platform]检索成功（扩展{len(expanded)}词）：{query}")
         return result
     except Exception as e:
         logger.error(f"[rag_retrieve_platform]失败：{str(e)}")

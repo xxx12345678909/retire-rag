@@ -1,19 +1,4 @@
-# ── 修补损坏的 packaging 元数据 ─────────────────
-# 环境中存在空的 packaging-23.1.dist-info 目录遮蔽了有效的 packaging-26.2.dist-info，
-# 导致 importlib.metadata.version('packaging') 返回 None，
-# 进而导致 transformers 依赖版本检查失败。
-# 此补丁在 transformers 被导入前修复 version() 的返回值。
-import importlib.metadata as _importlib_metadata
-_orig_version = _importlib_metadata.version
-
-def _patched_version(package_name: str) -> str:
-    v = _orig_version(package_name)
-    if v is None and package_name == "packaging":
-        return "26.2"
-    return v
-
-_importlib_metadata.version = _patched_version
-# ──────────────────────────────────────────────
+from utils.packaging_patch import *  # noqa: F401,F403 — packaging 补丁，须在所有 transformers 相关导入之前
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document

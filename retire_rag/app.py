@@ -23,22 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# ── 修补损坏的 packaging 元数据 ─────────────────
-# 环境中存在空的 packaging-23.1.dist-info 目录遮蔽了有效的 packaging-26.2.dist-info，
-# 导致 importlib.metadata.version('packaging') 返回 None，
-# 进而导致 transformers 依赖版本检查失败（影响 langchain_text_splitters 和 langgraph）。
-# 此补丁必须在所有可能触发 transformers 导入的项目模块之前执行。
-import importlib.metadata as _importlib_metadata
-_orig_version = _importlib_metadata.version
-
-def _patched_version(package_name: str) -> str:
-    v = _orig_version(package_name)
-    if v is None and package_name == "packaging":
-        return "26.2"
-    return v
-
-_importlib_metadata.version = _patched_version
-# ──────────────────────────────────────────────
+from utils.packaging_patch import *  # noqa: F401,F403 — 必须在所有 transformers 导入之前
 
 from fastapi import FastAPI, UploadFile, File, Form, Request, Depends
 from fastapi.staticfiles import StaticFiles
@@ -113,9 +98,9 @@ async def startup_auth():
 
 class ChatRequest(BaseModel):
     query: str
-    session_id: str = "default"
-    use_agent: bool = False  # True=React Agent, False=ChatService（规则路由）
-    profile: str = ""        # 用户档案（不参与意图识别，只用于RAG检索增强）
+    session_id: str = ""     # 空串时后端自动生成 UUID，避免多用户共享会话
+    use_agent: bool = False
+    profile: str = ""
 
 
 class ChatResponse(BaseModel):
