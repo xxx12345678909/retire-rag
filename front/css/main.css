@@ -1,0 +1,23 @@
+/* ============================================================
+   智慧养老AI辅助平台 — 样式表
+   ============================================================ */
+body {
+    font-family: 'Noto Sans SC', 'Inter', sans-serif;
+    background-color: #f8fafc;
+}
+
+/* 适老版大字号与高对比度 */
+.senior-mode { font-size: 20px !important; }
+.senior-mode .header-title { font-size: 32px !important; font-weight: 900 !important; }
+.senior-mode .nav-btn { font-size: 22px !important; padding: 12px 24px !important; font-weight: bold !important; }
+.senior-mode h1, .senior-mode h2, .senior-mode h3 { font-size: 28px !important; font-weight: 900 !important; }
+.senior-mode p, .senior-mode span, .senior-mode div, .senior-mode td { font-size: 20px !important; line-height: 1.6 !important; }
+.senior-mode input, .senior-mode select, .senior-mode textarea { font-size: 20px !important; padding: 16px !important; }
+.senior-mode .interactive-btn { padding: 16px 28px !important; font-size: 22px !important; border-width: 3px !important; border-color: #000000 !important; }
+
+/* 打字机光标特效 */
+.cursor-blink::after { content: '|'; animation: blink 1s infinite; }
+@keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+/* 隐藏滚动条 */
+.no-scrollbar::-webkit-scrollbar { display: none; }
