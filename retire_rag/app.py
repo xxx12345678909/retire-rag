@@ -191,9 +191,9 @@ async def upload_document(
         return JSONResponse({"error": "文件名不能为空"}, status_code=400)
 
     ext = Path(file.filename).suffix.lower()
-    if ext not in [".pdf", ".txt"]:
+    if ext not in [".pdf", ".txt", ".docx"]:
         return JSONResponse(
-            {"error": f"不支持的文件格式：{ext}，仅支持 PDF 和 TXT"},
+            {"error": f"不支持的文件格式：{ext}，仅支持 PDF、TXT 和 DOCX"},
             status_code=400,
         )
 

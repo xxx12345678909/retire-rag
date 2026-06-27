@@ -43,3 +43,12 @@ def pdf_loader(filepath:str,passwd=None)->list[Document]:
 def txt_loader(filepath:str)->list[Document]:
 
     return TextLoader(filepath,encoding="utf-8").load()
+
+def docx_loader(filepath:str)->list[Document]:
+    """加载 .docx 文件，提取纯文本"""
+    from docx import Document as DocxDoc
+    from langchain_core.documents import Document
+
+    doc = DocxDoc(filepath)
+    text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+    return [Document(page_content=text, metadata={"source": filepath})]

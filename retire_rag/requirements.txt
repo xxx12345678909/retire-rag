@@ -25,6 +25,7 @@ python-multipart==0.0.18         # 文件上传支持
 
 # 文件解析与工具
 pypdf==5.1.0                     # PDF 文档读取解析
+python-docx==1.1.2               # Word (.docx) 文档读取
 pyyaml==6.0.2                    # 配置文件解析
 
 # 模型服务（阿里通义千问/ dashscope）
