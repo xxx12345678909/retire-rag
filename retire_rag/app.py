@@ -311,7 +311,7 @@ async def update_chunk_cfg(key: str, value: str):
 @app.get("/admin/debug/stats")
 async def debug_stats():
     """运行时统计：LLM调用次数、缓存命中率、最近错误"""
-    from rag.query_expander import query_expander
+    from rag.rag_service import rag_service
     return {
         "runtime": runtime.snapshot(),
         "kb_stats": {
@@ -325,6 +325,7 @@ async def debug_stats():
 async def debug_dry_run(req: ChatRequest):
     """空跑模式：只执行检索和意图识别，不调 LLM（用于测试 RAG 覆盖）"""
     from rag.query_expander import query_expander
+    from rag.rag_service import rag_service
 
     trace = Trace(req.query)
     intent = chat_service.detect_intent(req.query)
@@ -333,7 +334,6 @@ async def debug_dry_run(req: ChatRequest):
     if intent == "reject_diagnosis":
         return {"intent": intent, "kb": None, "docs": 0, "trace": trace.summary()}
 
-    # 执行扩展 + 检索，但不调 LLM 生成回答
     kb_map = {"policy": "policy", "service": "service", "health": "health", "general": "platform"}
     kb = kb_map.get(intent, "platform")
 
