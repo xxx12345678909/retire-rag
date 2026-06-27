@@ -9,6 +9,18 @@
 </head>
 <body class="bg-slate-100 min-h-screen">
 <div id="navbar"></div>
+
+<!-- SOS 全屏告警遮罩 -->
+<div id="sos-overlay" class="hidden fixed inset-0 z-50 bg-red-600/95 flex flex-col items-center justify-center text-white text-center p-8">
+  <span class="text-9xl mb-6">🚨</span>
+  <p class="text-5xl font-black mb-4">紧急呼叫！</p>
+  <p id="sos-overlay-msg" class="text-3xl font-bold mb-8"></p>
+  <p class="text-xl opacity-70 mb-8">请立即联系呼叫者确认情况</p>
+  <button onclick="document.getElementById('sos-overlay').classList.add('hidden')" class="bg-white text-red-600 font-black px-12 py-4 rounded-2xl text-2xl hover:bg-red-50 transition-all shadow-2xl">
+    已确认，关闭告警
+  </button>
+</div>
+
 <div class="max-w-6xl mx-auto px-4 py-6">
   <!-- 权限检查 -->
   <div id="loading" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
@@ -282,12 +294,19 @@ async function approveBooking(id, status) {
   } catch(e) { alert('操作失败: ' + e.message); }
 }
 
+var lastSOSCount = 0;
 async function loadSOS() {
   try {
     var d = await authFetch('/admin/sos/alerts');
     var alerts = d.data || [];
+    // 全屏告警：有新 SOS 且数量增加
+    if (alerts.length > 0 && alerts.length > lastSOSCount) {
+      var names = alerts.map(function(a){return a.username||'匿名'}).join('、');
+      document.getElementById('sos-overlay').classList.remove('hidden');
+      document.getElementById('sos-overlay-msg').textContent = names + ' 触发紧急呼叫！';
+    }
+    lastSOSCount = alerts.length;
     var html = '';
-    alerts.forEach(function(a) {
       html += '<tr class="border-b border-slate-50 hover:bg-red-50">' +
         '<td class="py-2 pr-2 text-xs font-bold text-red-600">' + (a.username || '匿名') + '</td>' +
         '<td class="py-2 pr-2 text-xs font-bold text-red-500">' + (a.phone || '-') + '</td>' +

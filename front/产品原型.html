@@ -74,12 +74,12 @@
                     <span class="text-3xl" :class="isSeniorMode ? 'text-amber-800' : 'text-blue-600'">🏡</span>
                     <div>
                         <h1 class="header-title font-bold text-xl tracking-wide flex items-center gap-2">
-                            孝心常在 · 智慧养老云平台
-                            <span :class="isSeniorMode ? 'bg-amber-800 text-amber-100' : 'bg-blue-100 text-blue-700'" class="text-xs px-2 py-0.5 rounded-full font-normal">
+                            智慧养老云平台
+                            <!-- <span :class="isSeniorMode ? 'bg-amber-800 text-amber-100' : 'bg-blue-100 text-blue-700'" class="text-xs px-2 py-0.5 rounded-full font-normal">
                                 演示级高保真原型 V1.0
-                            </span>
+                            </span> -->
                         </h1>
-                        <p class="text-xs text-slate-400 mt-0.5" v-if="!isSeniorMode">基于 Vue3 + RAG 知识检索增强的大健康养老服务</p>
+                        <p class="text-xs text-slate-400 mt-0.5" v-if="!isSeniorMode">基于 RAG 知识检索增强的健康养老服务</p>
                     </div>
                 </div>
 
@@ -527,6 +527,16 @@
 
             <!-- 模块 4: 健康管理模块 -->
             <div v-if="currentTab === 'health'" class="space-y-6">
+                <!-- 服药全屏醒目提醒 -->
+                <div v-if="pillAlert" class="fixed inset-0 z-50 bg-red-600/95 flex flex-col items-center justify-center text-white text-center p-8 animate-pulse" @click="pillAlert = false">
+                    <span class="text-8xl mb-6">💊</span>
+                    <p class="text-5xl font-black mb-4">该吃药了！</p>
+                    <p class="text-3xl font-bold mb-2">{{ pillAlertName }}</p>
+                    <p class="text-2xl opacity-80 mb-8">剂量：{{ pillAlertDose }}</p>
+                    <button @click.stop="pillAlert = false" class="bg-white text-red-600 font-black px-12 py-4 rounded-2xl text-2xl hover:bg-red-50 transition-all shadow-2xl">
+                        我知道了，已服用
+                    </button>
+                </div>
                 <!-- 场景内嵌 AI 入口 -->
                 <div class="bg-gradient-to-r from-red-500 to-rose-600 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
@@ -1257,20 +1267,30 @@
                     savePills();
                 };
 
-                // 每分钟检查一次服药提醒
+                // 醒目服药提醒（30秒检测 + 全屏弹窗）
+                const pillAlert = ref(false);
+                const pillAlertName = ref('');
+                const pillAlertDose = ref('');
                 setInterval(() => {
                     const now = new Date();
                     const current = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+                    let hit = null;
                     pillList.value.forEach(p => {
                         if (p.time === current && lastAlerted.value[p.id] !== current) {
                             lastAlerted.value[p.id] = current;
-                            showToast(`💊 服药提醒：${p.name} ${p.dose} — 现在该吃药了！`);
-                            if ('Notification' in window && Notification.permission === 'granted') {
-                                new Notification('服药提醒', { body: `${p.name} ${p.dose}`, icon: '💊' });
-                            }
+                            hit = p;
                         }
                     });
-                }, 60000);
+                    if (hit) {
+                        pillAlertName.value = hit.name;
+                        pillAlertDose.value = hit.dose;
+                        pillAlert.value = true;
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('💊 服药时间到！', { body: `${hit.name} ${hit.dose}`, icon: '💊', vibrate: [200,100,200] });
+                        }
+                        setTimeout(() => { pillAlert.value = false; }, 15000);
+                    }
+                }, 30000);
 
                 // 请求通知权限
                 if ('Notification' in window && Notification.permission === 'default') {
@@ -1598,7 +1618,7 @@
                     calcForm, calcResult, calculateBenefits, showOriginalDoc,
 
                     // 健康管理
-                    pillList, pillForm, addPill, deletePill, mockHealthArticles, triggerSOS,
+                    pillList, pillForm, pillAlert, pillAlertName, pillAlertDose, addPill, deletePill, mockHealthArticles, triggerSOS,
 
                     // RAG后台
                     chunkSettings, uploadStatus, triggerMockUpload, mockChunks,
