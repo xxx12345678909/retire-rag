@@ -220,7 +220,7 @@
                             <div v-for="policy in policies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.name)">
                                 <div class="flex justify-between text-xs text-slate-400 mb-1">
                                     <span>类别: {{ policy.cat }}</span>
-                                    <span>{{ policy.date }}</span>
+                                    <span>{{ policy.source || '' }}</span>
                                 </div>
                                 <h4 class="font-bold" :class="isSeniorMode ? 'text-xl' : 'text-sm'">{{ policy.name }}</h4>
                                 <p class="text-xs text-slate-500 mt-1" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
@@ -465,7 +465,7 @@
                                 <div v-for="policy in policies" :key="policy.id" class="p-4 bg-slate-50 rounded-xl hover:shadow-sm border transition-all">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-xs font-bold px-2.5 py-1 rounded bg-blue-100 text-blue-800">{{ policy.cat }}</span>
-                                        <span class="text-xs text-slate-400">{{ policy.date }}</span>
+                                        <span class="text-xs text-slate-400">{{ policy.source || '' }}</span>
                                     </div>
                                     <h4 class="font-extrabold text-sm mb-1" :class="isSeniorMode ? 'text-xl' : ''">{{ policy.name }}</h4>
                                     <p class="text-xs text-slate-500 mb-3" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
