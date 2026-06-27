@@ -50,6 +50,7 @@ from service.chat_service import chat_service
 from service import persist
 from service import booking_service
 from service.institution_db import search_institutions, get_all_districts
+from service.booking_admin import get_all_bookings
 from agent.react_agent import agent as react_agent
 from utils.config_handler import chroma_conf
 from utils.logger_handler import logger
@@ -450,6 +451,17 @@ async def list_user_bookings(
         limit=limit,
     )
     return {"data": bookings}
+
+
+@app.get("/admin/bookings")
+async def admin_bookings(
+    limit: int = 50,
+    current_user: dict = Depends(get_current_user),
+):
+    """管理员：查看所有预约记录"""
+    if not current_user or current_user["role"] != "admin":
+        return JSONResponse({"error": "需要管理员权限"}, status_code=403)
+    return {"data": get_all_bookings(limit)}
 
 
 # ═══════════════════════════════════════════════════════
