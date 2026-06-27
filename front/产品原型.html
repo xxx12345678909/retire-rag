@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧养老AI辅助平台 & RAG知识库原型</title>
+    <!-- 引入 Vue 3 CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome 字体图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* 针对适老版大字号的高对色与布局修正 */
+        .senior-mode {
+            font-size: 20px !important;
+        }
+        .senior-mode .header-title {
+            font-size: 32px !important;
+            font-weight: 900 !important;
+        }
+        .senior-mode .nav-btn {
+            font-size: 22px !important;
+            padding: 12px 24px !important;
+            font-weight: bold !important;
+        }
+        .senior-mode h1, .senior-mode h2, .senior-mode h3 {
+            font-size: 28px !important;
+            font-weight: 900 !important;
+        }
+        .senior-mode p, .senior-mode span, .senior-mode div, .senior-mode td {
+            font-size: 20px !important;
+            line-height: 1.6 !important;
+        }
+        .senior-mode input, .senior-mode select, .senior-mode textarea {
+            font-size: 20px !important;
+            padding: 16px !important;
+        }
+        .senior-mode .interactive-btn {
+            padding: 16px 28px !important;
+            font-size: 22px !important;
+            border-width: 3px !important;
+            border-color: #000000 !important;
+        }
+        /* 模拟打字机光标特效 */
+        .cursor-blink::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="transition-all duration-300">
+    <div id="app" :class="[isSeniorMode ? 'senior-mode bg-amber-50/30 text-stone-900' : 'bg-slate-50 text-slate-800']" class="min-h-screen flex flex-col">
+        
+        <!-- 头部导航栏 -->
+        <header :class="[isSeniorMode ? 'bg-amber-100 border-b-4 border-stone-800 py-6' : 'bg-white border-b border-slate-100 py-4']" class="shadow-sm sticky top-0 z-40 transition-all duration-300">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl" :class="isSeniorMode ? 'text-amber-800' : 'text-blue-600'">🏡</span>
+                    <div>
+                        <h1 class="header-title font-bold text-xl tracking-wide flex items-center gap-2">
+                            孝心常在 · 智慧养老云平台
+                            <span :class="isSeniorMode ? 'bg-amber-800 text-amber-100' : 'bg-blue-100 text-blue-700'" class="text-xs px-2 py-0.5 rounded-full font-normal">
+                                演示级高保真原型 V1.0
+                            </span>
+                        </h1>
+                        <p class="text-xs text-slate-400 mt-0.5" v-if="!isSeniorMode">基于 Vue3 + RAG 知识检索增强的大健康养老服务</p>
+                    </div>
+                </div>
+
+                <!-- 主菜单切换 -->
+                <nav class="flex flex-wrap gap-2">
+                    <button 
+                        v-for="tab in menuTabs" 
+                        :key="tab.id"
+                        @click="switchTab(tab.id)"
+                        :class="[
+                            currentTab === tab.id 
+                                ? (isSeniorMode ? 'bg-stone-900 text-white border-2 border-stone-900' : 'bg-blue-600 text-white shadow-md') 
+                                : (isSeniorMode ? 'bg-amber-50 hover:bg-amber-200 text-stone-800 border-2 border-stone-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'),
+                            isSeniorMode ? 'text-lg px-5 py-2.5 font-bold rounded-lg' : 'text-sm px-4 py-2 rounded-lg'
+                        ]"
+                        class="nav-btn font-medium transition-all duration-200"
+                    >
+                        <i :class="tab.icon" class="mr-1.5"></i>{{ tab.name }}
+                    </button>
+                </nav>
+
+                <!-- 适老化控制台 -->
+                <div class="flex items-center gap-3">
+                    <button 
+                        @click="toggleSeniorMode"
+                        :class="isSeniorMode ? 'bg-red-600 text-white animate-pulse border-2 border-black' : 'bg-amber-500 text-white'" 
+                        class="interactive-btn px-4 py-2 rounded-full font-bold shadow-md hover:scale-105 active:scale-95 transition-all text-xs"
+                    >
+                        <i class="fa-solid" :class="isSeniorMode ? 'fa-user-clock' : 'fa-universal-access'"></i>
+                        {{ isSeniorMode ? '☀️ 一键切回：标准版' : '👵 一键切换：适老版 (大字高对比)' }}
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主体模块展示 -->
+        <main class="flex-grow max-w-7xl mx-auto w-full px-4 py-6">
+            
+            <!-- 模块 1: 首页 -->
+            <div v-if="currentTab === 'home'" class="space-y-6">
+                <!-- 广播式通知栏 (加粗提醒) -->
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">📢</span>
+                        <p class="text-red-700 font-bold" :class="isSeniorMode ? 'text-xl':'text-sm'">
+                            重要通知：本季度高龄津贴申报截止日期已延长，点击右下角“AI 助手”可即刻查询您的申领资格！
+                        </p>
+                    </div>
+                    <span class="text-xs text-red-500 hidden sm:inline">2026-06-27</span>
+                </div>
+
+                <!-- 精品大字卡片入口 (适老化核心设计) -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div @click="switchTab('services')" class="bg-white border-2 hover:border-blue-500 rounded-2xl p-6 shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group" :class="isSeniorMode ? 'border-stone-800' : 'border-slate-100'">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-emerald-50 rounded-xl text-emerald-600 group-hover:scale-110 transition-transform text-2xl">助</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">居家上门</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1" :class="isSeniorMode ? 'text-2xl':'text-base'">预约助餐助洁</h3>
+                            <p class="text-slate-500 text-xs" :class="isSeniorMode ? 'text-lg':''">提供居家配餐、家庭保洁及陪护</p>
+                        </div>
+                    </div>
+
+                    <div @click="switchTab('policy')" class="bg-white border-2 hover:border-blue-500 rounded-2xl p-6 shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group" :class="isSeniorMode ? 'border-stone-800' : 'border-slate-100'">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform text-2xl">津</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">补贴测算</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1" :class="isSeniorMode ? 'text-2xl':'text-base'">高龄津贴政策</h3>
+                            <p class="text-slate-500 text-xs" :class="isSeniorMode ? 'text-lg':''">一键输入年龄和户口快速评测金额</p>
+                        </div>
+                    </div>
+
+                    <div @click="switchTab('health')" class="bg-white border-2 hover:border-blue-500 rounded-2xl p-6 shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group" :class="isSeniorMode ? 'border-stone-800' : 'border-slate-100'">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-red-50 rounded-xl text-red-600 group-hover:scale-110 transition-transform text-2xl">医</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-800">健康巡防</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-1" :class="isSeniorMode ? 'text-2xl':'text-base'">服药提醒管理</h3>
+                            <p class="text-slate-500 text-xs" :class="isSeniorMode ? 'text-lg':''">定制日常服药时间与慢病监控档案</p>
+                        </div>
+                    </div>
+
+                    <div @click="openAIScene('platform')" class="bg-orange-50 border-2 border-orange-200 hover:border-orange-500 rounded-2xl p-6 shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-orange-100 rounded-xl text-orange-600 group-hover:scale-110 transition-transform text-2xl">🤖</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-200 text-orange-900">免输打字</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-orange-950 mb-1" :class="isSeniorMode ? 'text-2xl':'text-base'">口语提问向导</h3>
+                            <p class="text-orange-800 text-xs" :class="isSeniorMode ? 'text-lg':''">支持语音控制及各种大字体问答</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 政策速报与养老院速递双栏 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 热门养老政策解读 -->
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm" :class="isSeniorMode ? 'border-stone-800' : 'border-slate-100'">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold flex items-center gap-2" :class="isSeniorMode ? 'text-2xl' : 'text-lg'">
+                                <span class="text-blue-500">🔖</span> 2026 最新政策速报
+                            </h2>
+                            <span @click="switchTab('policy')" class="text-xs text-blue-600 hover:underline cursor-pointer">查看全部政策大厅 →</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div v-for="policy in mockPolicies" :key="policy.id" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border border-transparent hover:border-blue-200" @click="consultPolicy(policy.name)">
+                                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                    <span>类别: {{ policy.cat }}</span>
+                                    <span>{{ policy.date }}</span>
+                                </div>
+                                <h4 class="font-bold" :class="isSeniorMode ? 'text-xl' : 'text-sm'">{{ policy.name }}</h4>
+                                <p class="text-xs text-slate-500 mt-1" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
+                                <span class="inline-block mt-2 text-xs text-blue-600 font-semibold">⚡ 一键匹配问询 →</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 优选机构列表 -->
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm" :class="isSeniorMode ? 'border-stone-800' : 'border-slate-100'">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold flex items-center gap-2" :class="isSeniorMode ? 'text-2xl' : 'text-lg'">
+                                <span class="text-emerald-500">🏨</span> 智慧养老院推荐
+                            </h2>
+                            <span @click="switchTab('services')" class="text-xs text-emerald-600 hover:underline cursor-pointer">机构筛选与查找 →</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div v-for="inst in mockInstitutes.slice(0, 4)" :key="inst.id" class="border rounded-xl p-3 hover:shadow-sm">
+                                <div class="h-24 bg-slate-100 rounded-lg mb-2 relative overflow-hidden flex items-center justify-center">
+                                    <span class="text-3xl text-emerald-700/30">🏨</span>
+                                    <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                                        {{ inst.grade }}
+                                    </div>
+                                </div>
+                                <h4 class="font-bold text-xs" :class="isSeniorMode ? 'text-lg' : ''">{{ inst.name }}</h4>
+                                <div class="flex justify-between items-center text-xs text-slate-400 mt-1">
+                                    <span>{{ inst.district }}</span>
+                                    <span class="text-red-500 font-bold">¥{{ inst.price }}/月</span>
+                                </div>
+                                <button @click="bookInstitute(inst.name)" class="w-full mt-2 bg-emerald-50 text-emerald-700 font-bold py-1 rounded text-xs hover:bg-emerald-600 hover:text-white transition-all">
+                                    在线预约床位
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 紧急援助与求助卡片 (极简适老) -->
+                <div class="bg-red-100 border-4 border-red-500 rounded-3xl p-6 text-center shadow-lg">
+                    <p class="text-red-900 font-black mb-2" :class="isSeniorMode ? 'text-3xl':'text-lg'">🚨 老人防走失及紧急一键求救专线</p>
+                    <p class="text-red-800 font-bold mb-4" :class="isSeniorMode ? 'text-xl':'text-sm'">如遇紧急健康危机或突发跌倒状况，请立即点击下方按钮或直接拨打电话</p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="tel:4001234567" class="bg-red-600 text-white font-black px-8 py-4 rounded-2xl text-2xl shadow-md hover:bg-red-700 active:scale-95 transition-all inline-block border-2 border-white">
+                            📞 拨打求救电话: 400-123-4567
+                        </a>
+                        <button @click="triggerSOS" class="bg-white text-red-600 border-4 border-red-600 font-black px-8 py-4 rounded-2xl text-2xl shadow-md hover:bg-red-50 active:scale-95 transition-all">
+                            💥 一键呼叫社区急救员
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块 2: 养老服务大厅 -->
+            <div v-if="currentTab === 'services'" class="space-y-6">
+                <!-- 场景内嵌 AI 入口 -->
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="font-black text-xl mb-1">🔍 想找适合长辈的养老院或护理服务？</h2>
+                        <p class="text-emerald-100 text-xs" :class="isSeniorMode ? 'text-lg':''">AI 导办助手已关联服务机构库，您可以问：“我想给偏瘫的老人找包餐带无障碍设施的养老院”。</p>
+                    </div>
+                    <button @click="openAIScene('services')" class="bg-white text-emerald-800 hover:bg-emerald-50 font-extrabold px-6 py-3 rounded-xl shadow transition-all shrink-0">
+                        💬 智能向导为您推荐
+                    </button>
+                </div>
+
+                <!-- 标签切换：机构养老 / 居家服务 -->
+                <div class="flex border-b border-slate-200">
+                    <button @click="serviceTab = 'institutes'" :class="[serviceTab === 'institutes' ? 'border-b-4 border-emerald-600 text-emerald-700 font-bold' : 'text-slate-500']" class="px-6 py-3 text-sm" :class="isSeniorMode ? 'text-xl' : ''">
+                        🏥 养老机构查询
+                    </button>
+                    <button @click="serviceTab = 'homecare'" :class="[serviceTab === 'homecare' ? 'border-b-4 border-emerald-600 text-emerald-700 font-bold' : 'text-slate-500']" class="px-6 py-3 text-sm" :class="isSeniorMode ? 'text-xl' : ''">
+                        🍎 居家养老服务预约
+                    </button>
+                </div>
+
+                <!-- 选项卡 A: 养老院列表与筛选 -->
+                <div v-if="serviceTab === 'institutes'" class="space-y-4">
+                    <!-- 筛选区域 -->
+                    <div class="bg-white p-4 rounded-xl border flex flex-wrap gap-4 items-center">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">区域筛选</label>
+                            <select v-model="filters.district" class="border rounded p-2 text-xs bg-slate-50">
+                                <option value="全部">全部区域</option>
+                                <option value="海淀区">海淀区</option>
+                                <option value="朝阳区">朝阳区</option>
+                                <option value="西城区">西城区</option>
+                                <option value="昌平区">昌平区</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">价格预算</label>
+                            <select v-model="filters.price" class="border rounded p-2 text-xs bg-slate-50">
+                                <option value="全部">全部价格</option>
+                                <option value="5000">¥5,000以下</option>
+                                <option value="8000">¥5,000 - ¥8,000</option>
+                                <option value="15000">¥8,000以上</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">星级标准</label>
+                            <select v-model="filters.grade" class="border rounded p-2 text-xs bg-slate-50">
+                                <option value="全部">全部星级</option>
+                                <option value="五星级">★★★★★ 五星级</option>
+                                <option value="四星级">★★★★ 四星级</option>
+                                <option value="三星级">★★★ 三星级</option>
+                            </select>
+                        </div>
+                        <button @click="resetFilters" class="text-xs text-blue-600 hover:underline mt-4">重置筛选</button>
+                    </div>
+
+                    <!-- 机构卡片网格 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div v-for="inst in filteredInstitutes" :key="inst.id" class="bg-white rounded-2xl border p-4 hover:shadow-md transition-all flex flex-col justify-between">
+                            <div>
+                                <div class="bg-slate-100 rounded-xl h-44 flex items-center justify-center text-4xl text-slate-300 relative mb-3">
+                                    🏢
+                                    <div class="absolute top-2 left-2 bg-emerald-600 text-white text-xs px-2 py-0.5 rounded font-bold">
+                                        {{ inst.grade }}
+                                    </div>
+                                </div>
+                                <h3 class="font-bold text-base mb-1">{{ inst.name }}</h3>
+                                <p class="text-xs text-slate-400 mb-2"><i class="fa-solid fa-location-dot mr-1"></i>{{ inst.district }}{{ inst.address }}</p>
+                                <div class="flex flex-wrap gap-1.5 mb-4">
+                                    <span v-for="tag in inst.tags" class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                                        {{ tag }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="border-t pt-3 flex justify-between items-center">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">月均收费</span>
+                                    <span class="text-red-500 font-bold text-lg">¥{{ inst.price }}<span class="text-xs font-normal">/月起</span></span>
+                                </div>
+                                <button @click="bookInstitute(inst.name)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition-all">
+                                    预约咨询及试住
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 选项卡 B: 居家养老预约 -->
+                <div v-if="serviceTab === 'homecare'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 预约表单 -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-2xl border">
+                        <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2">
+                            <span>✍️</span> 提交居家预约单
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">选择服务项目</label>
+                                <select v-model="orderForm.serviceType" class="w-full border rounded-lg p-2.5 text-sm bg-slate-50">
+                                    <option value="助餐服务">🍱 适老爱心午餐/晚餐送上门 (¥15/餐)</option>
+                                    <option value="助洁服务">🧹 居家深度保洁与衣物清洗 (¥40/小时)</option>
+                                    <option value="助医服务">🏥 陪同老人去医院排队取药挂号 (¥120/次)</option>
+                                    <option value="陪护服务">👵 专业护工居家看护伴宿 (¥260/天)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">服务对象姓名</label>
+                                <input v-model="orderForm.elderName" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="请输入被看护老人姓名">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">上门服务地址</label>
+                                <input v-model="orderForm.address" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="请输入完整门牌号">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">服务日期与时间</label>
+                                <input v-model="orderForm.time" type="datetime-local" class="w-full border rounded-lg p-2.5 text-sm">
+                            </div>
+                            <button @click="submitOrder" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg text-sm shadow transition-all">
+                                提交上门预约订单
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 居家服务预约单与服务展示 -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-white p-6 rounded-2xl border">
+                            <h3 class="font-bold mb-4 text-slate-700">实时预约进度监控</h3>
+                            <div v-if="orderList.length === 0" class="text-center py-8 text-slate-400 text-xs">
+                                📭 暂无待处理预约订单，请在左侧添加预约
+                            </div>
+                            <div v-else class="space-y-3">
+                                <div v-for="order in orderList" :key="order.id" class="p-4 bg-slate-50 rounded-xl border flex flex-col sm:flex-row justify-between gap-4">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="font-bold text-sm">{{ order.type }}</span>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">待服务商派单</span>
+                                        </div>
+                                        <p class="text-xs text-slate-400">老人: {{ order.name }} | 地址: {{ order.addr }}</p>
+                                        <p class="text-xs text-slate-400 mt-1">时间: {{ order.time }}</p>
+                                    </div>
+                                    <button @click="cancelOrder(order.id)" class="text-xs text-red-500 hover:underline self-center">
+                                        取消预约
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 服务商风采 -->
+                        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border border-emerald-100">
+                            <h4 class="font-bold text-emerald-900 mb-2">🛡️ 平台五星保障承诺</h4>
+                            <p class="text-xs text-emerald-700" :class="isSeniorMode ? 'text-lg':''">我们所有的养老护理员均持证上岗（包含健康证及红十字急救证），均通过实名认证并录入公安信息核验系统。如出现任何纠纷，平台提供全额行内退还及先行赔付机制。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块 3: 养老政策大厅 -->
+            <div v-if="currentTab === 'policy'" class="space-y-6">
+                <!-- 政策搜索引导 -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-2xl shadow flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="font-black text-xl mb-1">📜 养老政策繁多看不懂？</h2>
+                        <p class="text-blue-100 text-xs" :class="isSeniorMode ? 'text-lg':''">AI 已深度学习当地高龄津贴、补贴及长护险细则。直接提问：“长护险申请需要准备什么材料？”</p>
+                    </div>
+                    <button @click="openAIScene('policy')" class="bg-white text-blue-800 hover:bg-blue-50 font-extrabold px-6 py-3 rounded-xl shadow transition-all shrink-0">
+                        💬 一键拉起政策对话
+                    </button>
+                </div>
+
+                <!-- 政策大厅主体 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-lg mb-4 text-slate-700 border-b pb-2">📂 当地政策及细则全文</h3>
+                            <div class="space-y-4">
+                                <div v-for="policy in mockPolicies" :key="policy.id" class="p-4 bg-slate-50 rounded-xl hover:shadow-sm border transition-all">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold px-2.5 py-1 rounded bg-blue-100 text-blue-800">{{ policy.cat }}</span>
+                                        <span class="text-xs text-slate-400">{{ policy.date }}</span>
+                                    </div>
+                                    <h4 class="font-extrabold text-sm mb-1" :class="isSeniorMode ? 'text-xl' : ''">{{ policy.name }}</h4>
+                                    <p class="text-xs text-slate-500 mb-3" :class="isSeniorMode ? 'text-lg' : ''">{{ policy.summary }}</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button @click="consultPolicy(policy.name)" class="text-xs bg-white border border-blue-500 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-50 transition-all">
+                                            🔍 政策智能匹配
+                                        </button>
+                                        <button @click="showOriginalDoc(policy.name)" class="text-xs bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-300 transition-all">
+                                            📄 查看原文片段 (RAG源)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 福利智能计算器 (结合 RAG 自适应条件) -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-2xl border shadow-sm h-fit">
+                        <h3 class="font-bold text-lg mb-4 text-slate-700 flex items-center gap-1.5">
+                            <span>🧮</span> 适老政策补贴一键测
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">长辈年龄</label>
+                                <input v-model="calcForm.age" type="number" class="w-full border rounded-lg p-2 text-sm" placeholder="如 75">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">户籍归属</label>
+                                <select v-model="calcForm.hukou" class="w-full border rounded-lg p-2 text-sm bg-slate-50">
+                                    <option value="本地户籍">北京本地户籍</option>
+                                    <option value="外地户籍">非京籍(外地户籍)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">日常生活自理情况</label>
+                                <select v-model="calcForm.disabled" class="w-full border rounded-lg p-2 text-sm bg-slate-50">
+                                    <option value="完全自理">完全自理 (无失能)</option>
+                                    <option value="轻度失能">轻度失能 (吃饭翻身需协助)</option>
+                                    <option value="重度失能">重度失能 (瘫痪、失智卧床)</option>
+                                </select>
+                            </div>
+                            <button @click="calculateBenefits" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm shadow transition-all">
+                                🚀 AI 计算可享受项目
+                            </button>
+
+                            <div v-if="calcResult" class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                                <h4 class="font-bold text-amber-950 text-sm">🗂️ 匹配到的福利测算结果：</h4>
+                                <ul class="text-xs text-amber-900 space-y-1" :class="isSeniorMode ? 'text-lg':''">
+                                    <li v-for="res in calcResult" :key="res">• {{ res }}</li>
+                                </ul>
+                                <button @click="openAIScene('policy', '刚才我测算高龄津贴，具体的在线申请入口在哪里？')" class="w-full mt-2 bg-amber-600 hover:bg-amber-700 text-white font-bold py-1.5 rounded text-xs transition-all">
+                                    向AI助理追问办理流程
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块 4: 健康管理模块 -->
+            <div v-if="currentTab === 'health'" class="space-y-6">
+                <!-- 场景内嵌 AI 入口 -->
+                <div class="bg-gradient-to-r from-red-500 to-rose-600 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="font-black text-xl mb-1">🏥 身体不适或有药理疑问？</h2>
+                        <p class="text-red-100 text-xs" :class="isSeniorMode ? 'text-lg':''">AI 科普助理已关联老年慢性病、饮食用药常识库。您可以问：“糖尿病吃什么好？有高血压吃药要注意什么？”</p>
+                    </div>
+                    <button @click="openAIScene('health')" class="bg-white text-rose-800 hover:bg-rose-50 font-extrabold px-6 py-3 rounded-xl shadow transition-all shrink-0">
+                        💬 智能用药科普问答
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 个人档案与用药设置 -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- 老人健康档案 -->
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-base mb-4 border-b pb-2 flex justify-between items-center">
+                                <span>📊 基础健康档案</span>
+                                <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">家属代录绑定</span>
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between border-b pb-1">
+                                    <span class="text-xs text-slate-400">姓名</span>
+                                    <span class="font-bold text-sm">陈大伯</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-1">
+                                    <span class="text-xs text-slate-400">年龄</span>
+                                    <span class="font-bold text-sm">76 岁</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-1">
+                                    <span class="text-xs text-slate-400">主要慢性病记录</span>
+                                    <span class="font-bold text-sm text-red-600">2型糖尿病、原发性高血压</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-xs text-slate-400">绑定的紧急监护人</span>
+                                    <span class="font-bold text-sm">儿子 (138****8888)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 用药提醒设置 -->
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-base mb-3 border-b pb-2">⏰ 每日服药闹钟提醒</h3>
+                            <div class="space-y-3 mb-4">
+                                <div v-for="pill in pillList" :key="pill.id" class="p-3 bg-red-50 rounded-xl border border-red-100 flex justify-between items-center">
+                                    <div>
+                                        <p class="font-bold text-sm" :class="isSeniorMode ? 'text-xl':''">💊 {{ pill.name }}</p>
+                                        <p class="text-[10px] text-slate-500">提醒时间: <span class="font-bold text-red-600">{{ pill.time }}</span> | 剂量: {{ pill.dose }}</p>
+                                    </div>
+                                    <button @click="deletePill(pill.id)" class="text-xs text-slate-400 hover:text-red-500">
+                                        删除
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- 新增用药提醒表单 -->
+                            <div class="space-y-2 pt-2 border-t">
+                                <input v-model="pillForm.name" type="text" placeholder="药物名称 (如：二甲双胍)" class="w-full border rounded p-2 text-xs">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input v-model="pillForm.time" type="time" class="border rounded p-2 text-xs">
+                                    <input v-model="pillForm.dose" type="text" placeholder="用量 (如：半片)" class="border rounded p-2 text-xs">
+                                </div>
+                                <button @click="addPill" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded text-xs">
+                                    添加服药闹钟
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 科普权威知识文章列表 -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border shadow-sm">
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="font-bold text-lg text-slate-700">📚 权威老年健康科普</h3>
+                            <span class="text-xs text-rose-600 font-extrabold">🚨 科普仅供参考，不作为医学诊断！</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="article in mockHealthArticles" :key="article.id" class="p-4 bg-slate-50 rounded-xl hover:shadow-sm border transition-all cursor-pointer flex flex-col justify-between" @click="consultHealth(article.title)">
+                                <div>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold mb-2 inline-block">
+                                        {{ article.tag }}
+                                    </span>
+                                    <h4 class="font-bold text-sm mb-1" :class="isSeniorMode ? 'text-xl' : ''">{{ article.title }}</h4>
+                                    <p class="text-xs text-slate-400" :class="isSeniorMode ? 'text-lg' : ''">{{ article.summary }}</p>
+                                </div>
+                                <div class="mt-4 pt-2 border-t flex justify-between items-center">
+                                    <span class="text-[10px] text-slate-400">数据源: {{ article.source }}</span>
+                                    <span class="text-xs text-rose-600 font-bold">提问此主题 →</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块 5: RAG后台管理与知识库运维 (RAG闭环展示) -->
+            <div v-if="currentTab === 'admin'" class="space-y-6">
+                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow">
+                    <h2 class="font-extrabold text-xl mb-1">🤖 养老专属 RAG 知识库后台运维端</h2>
+                    <p class="text-slate-400 text-xs">在这里，管理员可以批量导入政策或医疗科普文件、进行向量化自动文本分片调节、查看提问日志以及优化 RAG 召回精度。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左侧：文档上传与向量分块管理 -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- 文档上传 -->
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-base mb-4 border-b pb-2">📂 知识库文档批量导入</h3>
+                            
+                            <!-- 模拟拖拽上传 -->
+                            <div @click="triggerMockUpload" class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 cursor-pointer transition-all">
+                                <span class="text-3xl text-slate-400 block mb-2">📁</span>
+                                <span class="font-bold text-xs text-slate-600 block">点击上传本地文档</span>
+                                <span class="text-[10px] text-slate-400 block mt-1">支持 PDF、Word、TXT 格式</span>
+                            </div>
+
+                            <div v-if="uploadStatus" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-2">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="font-bold text-blue-900">{{ uploadStatus.name }}</span>
+                                    <span class="text-blue-600 font-bold">{{ uploadStatus.progress }}%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-blue-600 h-full transition-all duration-300" :style="{ width: uploadStatus.progress + '%' }"></div>
+                                </div>
+                                <p class="text-[10px] text-slate-500">{{ uploadStatus.message }}</p>
+                            </div>
+
+                            <!-- 知识库分类选择 -->
+                            <div class="mt-4">
+                                <label class="block text-xs font-bold text-slate-500 mb-1">分发入库类别</label>
+                                <select class="w-full border rounded p-2 text-xs bg-slate-50">
+                                    <option>政策法规库</option>
+                                    <option>居家/养老服务知识库</option>
+                                    <option>老年健康科普知识库</option>
+                                    <option>系统操作FAQ库</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 向量切块控制 -->
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-base mb-4 border-b pb-2">⚙️ 向量分片 Chunk 策略调整</h3>
+                            <div class="space-y-4 text-xs">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>单个分片最大字数 (Chunk Size)</span>
+                                        <span class="font-bold text-blue-600">{{ chunkSettings.size }} 字</span>
+                                    </div>
+                                    <input v-model="chunkSettings.size" type="range" min="100" max="1000" step="50" class="w-full">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>重叠字数边界 (Overlap Size)</span>
+                                        <span class="font-bold text-blue-600">{{ chunkSettings.overlap }} 字</span>
+                                    </div>
+                                    <input v-model="chunkSettings.overlap" type="range" min="10" max="200" step="10" class="w-full">
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-lg border">
+                                    <span class="font-bold block mb-1">当前分片策略建议：</span>
+                                    <span class="text-slate-500">当前针对《政策法规库》使用 RecursiveCharacterTextSplitter 针对标点递归分片，对长难句及表格进行重叠保留。</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 中右：自动切块预览与问答日志审计 -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- 文档分块段落可视化 -->
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-base mb-4 border-b pb-2">🧩 文本向量切片可视化大盘</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div v-for="(chunk, idx) in mockChunks" :key="idx" class="p-3 border rounded-xl bg-slate-50 space-y-1 hover:border-blue-300 hover:bg-blue-50/10 transition-all cursor-pointer">
+                                    <div class="flex justify-between text-[10px]">
+                                        <span class="text-slate-400">分片 #{{ idx + 1 }} | 包含: {{ chunk.len }}字</span>
+                                        <span class="font-bold text-blue-600">向量维度: 1536</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">{{ chunk.content }}</p>
+                                    <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t">
+                                        <span>关联源: {{ chunk.source }}</span>
+                                        <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-mono">ID: {{ chunk.hash }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 问答日志及反馈机制 -->
+                        <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                            <h3 class="font-bold text-base mb-4 border-b pb-2">📋 实时用户问答日志 (RAG检索审计)</h3>
+                            <div class="overflow-x-auto text-xs">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-slate-500 font-bold border-b">
+                                            <th class="p-3">提问内容</th>
+                                            <th class="p-3">召回知识库</th>
+                                            <th class="p-3">命中最高Chunk评分</th>
+                                            <th class="p-3">生成回答质量反馈</th>
+                                            <th class="p-3">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y text-slate-600">
+                                        <tr v-for="log in mockQaLogs" :key="log.id" class="hover:bg-slate-50">
+                                            <td class="p-3 font-semibold">{{ log.query }}</td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700">{{ log.kb }}</span>
+                                            </td>
+                                            <td class="p-3 font-mono font-bold text-blue-600">{{ log.score }}</td>
+                                            <td class="p-3">
+                                                <span v-if="log.rating === 'good'" class="text-emerald-600"><i class="fa-solid fa-thumbs-up mr-1"></i>高满意</span>
+                                                <span v-else-if="log.rating === 'bad'" class="text-red-500"><i class="fa-solid fa-thumbs-down mr-1"></i>低召回 (需补充)</span>
+                                                <span v-else class="text-slate-400">待标注</span>
+                                            </td>
+                                            <td class="p-3">
+                                                <button @click="optimizeChunk(log)" class="text-blue-600 hover:underline">
+                                                    优化分片规则
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 3. 全站悬浮 AI 助手组件 (RAG 核心演示交互) -->
+        <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 max-w-[95%] sm:max-w-md">
+            
+            <!-- AI 对话弹窗主框 -->
+            <div v-if="aiOpen" class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col transition-all duration-300" :style="[isSeniorMode ? 'width: 540px; height: 750px;' : 'width: 420px; height: 600px;']">
+                <!-- 对话窗口顶部 -->
+                <div class="p-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex justify-between items-center shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🤖</span>
+                        <div>
+                            <h4 class="font-extrabold text-sm" :class="isSeniorMode ? 'text-xl' : ''">养老AI助手 (RAG增强)</h4>
+                            <p class="text-[10px] text-blue-100 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 bg-green-400 rounded-full inline-block animate-ping"></span>
+                                场景库联动：{{ kbNameMap[currentKbType] }}
+                            </p>
+                        </div>
+                    </div>
+                    <button @click="aiOpen = false" class="text-white opacity-80 hover:opacity-100 p-1">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- 场景化快捷预设问答，展示匹配度 (适老化设计) -->
+                <div class="bg-slate-50 px-3 py-2 border-b flex gap-1.5 overflow-x-auto no-scrollbar scroll-smooth shrink-0">
+                    <button 
+                        v-for="question in quickQuestionsMap[currentKbType]" 
+                        :key="question"
+                        @click="sendPresetQuestion(question)"
+                        class="bg-white border rounded-full px-3 py-1 text-xs whitespace-nowrap hover:bg-slate-100 text-slate-600 shadow-sm transition-all shrink-0"
+                        :class="isSeniorMode ? 'text-sm font-bold' : ''"
+                    >
+                        💡 {{ question }}
+                    </button>
+                </div>
+
+                <!-- 消息内容主窗 -->
+                <div class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/50" ref="messageBox">
+                    <div v-for="(msg, index) in chatHistory" :key="index" :class="['flex items-start gap-2', msg.role === 'user' ? 'flex-row-reverse' : '']">
+                        <!-- 头像 -->
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm text-sm shrink-0" :class="msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800'">
+                            {{ msg.role === 'user' ? '👴' : '🤖' }}
+                        </div>
+                        <!-- 消息泡 -->
+                        <div class="max-w-[75%] rounded-2xl px-4 py-3 shadow-sm border text-xs leading-relaxed" :class="[msg.role === 'user' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-800 border-slate-200']">
+                            <p class="whitespace-pre-line" :class="isSeniorMode ? 'text-lg font-bold' : ''">{{ msg.text }}</p>
+                            
+                            <!-- 播放声音控制 -->
+                            <div v-if="msg.role === 'assistant'" class="flex justify-end mt-1.5 border-t pt-1.5 border-slate-100">
+                                <button @click="speakText(msg.text)" class="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1">
+                                    <i class="fa-solid fa-volume-high"></i> {{ isSpeaking ? '播放中...' : '大声播报语音给老人听' }}
+                                </button>
+                            </div>
+
+                            <!-- 医疗免责声明 -->
+                            <div v-if="msg.isMedical" class="mt-2 p-2.5 bg-rose-50 border-l-4 border-rose-500 text-rose-800 rounded text-[10px] space-y-1">
+                                <p class="font-bold flex items-center gap-1"><span class="text-sm">⚠️</span> 免责及免责安全屏障：</p>
+                                <p>{{ msg.disclaimer }}</p>
+                            </div>
+
+                            <!-- RAG 溯源引用展示 -->
+                            <div v-if="msg.citations && msg.citations.length > 0" class="mt-2.5 pt-2 border-t border-dashed" :class="msg.role === 'user'?'border-blue-400 text-blue-100':'border-slate-100 text-slate-400'">
+                                <p class="text-[10px] font-bold mb-1"><i class="fa-solid fa-square-share-nodes"></i> 本次生成参考了以下 RAG 知识片段：</p>
+                                <div v-for="(cite, cIdx) in msg.citations" :key="cIdx" @click="highlightCitation(cite)" class="text-[9px] bg-slate-100 text-slate-600 px-2 py-1 rounded mt-1 cursor-pointer hover:bg-slate-200 transition-all block max-w-full truncate">
+                                    📄 {{ cite.doc }} (第 {{ cite.page }} 页)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模拟思考打字状态 -->
+                    <div v-if="isAiTyping" class="flex items-start gap-2">
+                        <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-sm shrink-0">🤖</div>
+                        <div class="bg-white text-slate-400 border border-slate-200 rounded-2xl px-4 py-3 text-xs shadow-sm cursor-blink font-medium">
+                            {{ activeKBScanningText }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部输入框 -->
+                <div class="p-3 border-t bg-white flex items-center gap-2 shrink-0">
+                    <!-- 模拟语音录音键 -->
+                    <button 
+                        @click="simulateSpeech" 
+                        :class="isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                        class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all"
+                        title="按住语音输入(针对老年人无障碍)"
+                    >
+                        <i class="fa-solid fa-microphone text-base"></i>
+                    </button>
+                    <!-- 文本输入 -->
+                    <input 
+                        v-model="userInput" 
+                        @keyup.enter="handleSendMessage" 
+                        type="text" 
+                        class="flex-grow border rounded-full px-4 py-2.5 text-xs outline-none focus:border-blue-500" 
+                        :placeholder="placeholderMap[currentKbType]"
+                    >
+                    <!-- 发送按钮 -->
+                    <button @click="handleSendMessage" class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-700 active:scale-95 transition-all shrink-0">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 常规悬浮大球 -->
+            <button 
+                v-if="!aiOpen" 
+                @click="aiOpen = true"
+                :class="isSeniorMode ? 'w-24 h-24 border-4 border-stone-900 bg-amber-500 text-black shadow-2xl' : 'w-16 h-16 bg-blue-600 text-white shadow-lg'"
+                class="rounded-full flex flex-col justify-center items-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            >
+                <span :class="isSeniorMode ? 'text-4xl' : 'text-2xl'">🤖</span>
+                <span class="font-extrabold" :class="isSeniorMode ? 'text-base' : 'text-[10px]'">AI 助手</span>
+            </button>
+        </div>
+
+        <!-- Toast 弹出提醒消息 -->
+        <div v-if="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 border border-slate-800 text-xs font-semibold animate-bounce">
+            <span>💡</span> {{ toastText }}
+        </div>
+
+        <!-- 引用原文弹窗阅读器 -->
+        <div v-if="citationDoc" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h4 class="font-extrabold text-base">📄 召回原文精确命中段落</h4>
+                    <button @click="citationDoc = null" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="p-4 bg-slate-50 border rounded-xl font-serif text-sm leading-relaxed text-slate-700">
+                    "{{ citationDoc.content }}"
+                </div>
+                <div class="text-xs text-slate-400">
+                    数据源引用：{{ citationDoc.doc }} (第 {{ citationDoc.page }} 页)
+                </div>
+                <button @click="citationDoc = null" class="w-full bg-slate-900 text-white py-2.5 rounded-lg font-bold text-xs">关闭预览</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 运行 Vue 应用控制脚本 -->
+    <script>
+        const { createApp, ref, computed, watch, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                // --- 全局状态 ---
+                const isSeniorMode = ref(false);
+                const currentTab = ref('home');
+                const serviceTab = ref('institutes');
+                const toast = ref(false);
+                const toastText = ref('');
+                const citationDoc = ref(null);
+
+                // --- 菜单列表 ---
+                const menuTabs = [
+                    { id: 'home', name: '首页入口', icon: 'fa-solid fa-house' },
+                    { id: 'services', name: '养老服务', icon: 'fa-solid fa-hand-holding-heart' },
+                    { id: 'policy', name: '政策大厅', icon: 'fa-solid fa-file-invoice-dollar' },
+                    { id: 'health', name: '健康管理', icon: 'fa-solid fa-heart-pulse' },
+                    { id: 'admin', name: 'RAG知识库后台', icon: 'fa-solid fa-database' }
+                ];
+
+                // --- 适老一键切换 ---
+                const toggleSeniorMode = () => {
+                    isSeniorMode.value = !isSeniorMode.value;
+                    showToast(isSeniorMode.value ? '👵 适老模式已开启！超大字体高对比度' : '☀️ 已切回：标准排版模式');
+                };
+
+                // --- 提示框控制 ---
+                const showToast = (text) => {
+                    toastText.value = text;
+                    toast.value = true;
+                    setTimeout(() => {
+                        toast.value = false;
+                    }, 3000);
+                };
+
+                // --- 标签页切换逻辑 ---
+                const switchTab = (tabId) => {
+                    currentTab.value = tabId;
+                    // 场景自动感知：AI 助手底层匹配当前页面对应的专属 RAG 知识库
+                    if (tabId === 'policy') {
+                        currentKbType.value = 'policy';
+                    } else if (tabId === 'health') {
+                        currentKbType.value = 'health';
+                    } else if (tabId === 'services') {
+                        currentKbType.value = 'services';
+                    } else {
+                        currentKbType.value = 'platform';
+                    }
+                };
+
+                // --- 养老机构筛选与预约 MOCK 数据与服务 ---
+                const mockInstitutes = [
+                    { id: 1, name: '北京爱心汇福国际养老院', district: '海淀区', address: '万泉河路102号', price: 6800, grade: '★★★★★ 五星级', tags: ['医养结合', '专属特级护理', '带独立小院'], cat: '海淀区' },
+                    { id: 2, name: '朝阳太阳宫康健老年公寓', district: '朝阳区', address: '太阳宫南街5号', price: 4200, grade: '★★★★ 四星级', tags: ['医保直通', '失能康复', '长护险定点'], cat: '朝阳区' },
+                    { id: 3, name: '西城白纸坊街道养老社区', district: '西城区', address: '南菜园街12号', price: 9200, grade: '★★★★★ 五星级', tags: ['社区全日托', '高配智能卫浴', '老年大学'], cat: '西城区' },
+                    { id: 4, name: '昌平回龙观暖心安养院', district: '昌平区', address: '回龙观西大街24号', price: 3500, grade: '★★★ 三星级', tags: ['特惠长租', '平价餐食', '全天候监护'], cat: '昌平区' }
+                ];
+                const filters = ref({ district: '全部', price: '全部', grade: '全部' });
+
+                const filteredInstitutes = computed(() => {
+                    return mockInstitutes.filter(inst => {
+                        const districtMatch = filters.value.district === '全部' || inst.district === filters.value.district;
+                        const gradeMatch = filters.value.grade === '全部' || inst.grade.includes(filters.value.grade);
+                        let priceMatch = true;
+                        if (filters.value.price !== '全部') {
+                            const budget = parseInt(filters.value.price);
+                            if (budget === 5000) priceMatch = inst.price < 5000;
+                            else if (budget === 8000) priceMatch = inst.price >= 5000 && inst.price <= 8000;
+                            else if (budget === 15000) priceMatch = inst.price > 8000;
+                        }
+                        return districtMatch && gradeMatch && priceMatch;
+                    });
+                });
+
+                const resetFilters = () => {
+                    filters.value = { district: '全部', price: '全部', grade: '全部' };
+                };
+
+                const bookInstitute = (name) => {
+                    showToast(`✅ 已为您预约[${name}]的免费参观与试住席位，专属护理经理将于10分钟内致电家属！`);
+                };
+
+                // 居家上门预约表单与列表
+                const orderForm = ref({ serviceType: '助餐服务', elderName: '陈大伯', address: '北京市朝阳区北苑家园12号楼2单元101', time: '' });
+                const orderList = ref([
+                    { id: 1, type: '助洁服务', name: '陈大伯', addr: '北京市朝阳区北苑家园12号楼101', time: '2026-06-28 14:00' }
+                ]);
+                const submitOrder = () => {
+                    if (!orderForm.value.elderName || !orderForm.value.address) {
+                        showToast('❌ 请填写完整的服务对象姓名和上门地址！');
+                        return;
+                    }
+                    orderList.value.push({
+                        id: Date.now(),
+                        type: orderForm.value.serviceType,
+                        name: orderForm.value.elderName,
+                        addr: orderForm.value.address,
+                        time: orderForm.value.time || '2026-06-28 10:00'
+                    });
+                    showToast('🎉 预约成功！服务单已录入，护理员将在约定时间前与您通话确认');
+                };
+                const cancelOrder = (id) => {
+                    orderList.value = orderList.value.filter(o => o.id !== id);
+                    showToast('🗑️ 服务预约单已撤销。');
+                };
+
+                // --- 养老政策大厅 MOCK ---
+                const mockPolicies = [
+                    { id: 1, cat: '高龄津贴', name: '2026年本市调整高龄老人津贴发放实施细则', date: '2026-03-01', summary: '针对年满70周岁至79周岁、80周岁至89周岁、90周岁及以上的老人按月发放津贴，本市户籍办理直通车。' },
+                    { id: 2, cat: '长期护理险', name: '关于长期护理保险(长护险)全城无障碍评估申报指南', date: '2026-01-15', summary: '重度失能的老人因残疾或慢病丧失自理能力者，可通过本指南进行线上评估，通过后可享受免费专业上门照料服务，费用大额由保金支付。' },
+                    { id: 3, cat: '养老补贴', name: '独生子女父母年老特殊养老服务消费券增发办法', date: '2026-05-10', summary: '规定本市特殊家庭老年人可免费申领300元至800元不等居家消费卡。' }
+                ];
+                
+                // 福利智能测算
+                const calcForm = ref({ age: '', hukou: '本地户籍', disabled: '完全自理' });
+                const calcResult = ref(null);
+                const calculateBenefits = () => {
+                    const ageNum = parseInt(calcForm.value.age);
+                    if (!calcForm.value.age || isNaN(ageNum)) {
+                        showToast('❌ 请先输入正确的年龄！');
+                        return;
+                    }
+                    const results = [];
+                    if (calcForm.value.hukou === '本地户籍') {
+                        if (ageNum >= 70 && ageNum < 80) results.push('每月可领取本地高龄津贴 100元');
+                        else if (ageNum >= 80 && ageNum < 90) results.push('每月可领取本地高龄津贴 200元');
+                        else if (ageNum >= 90) results.push('每月可领取本地高龄津贴 500元');
+                        else results.push('高龄津贴起领门槛为年满 70 周岁。');
+                    } else {
+                        results.push('外地户籍不享受本地直发津贴，但凭本市居住证满一年可享部分助餐餐饮半价。');
+                    }
+
+                    if (calcForm.value.disabled === '重度失能') {
+                        results.push('符合《长护险政策》，可申请最高 104 小时/月免费上门护理员。');
+                    } else if (calcForm.value.disabled === '轻度失能') {
+                        results.push('符合居家社区巡视扶持政策，每月发放100元助洁消费代金券。');
+                    }
+                    calcResult.value = results;
+                    showToast('🎉 AI 养老评估匹配成功！');
+                };
+
+                // --- 健康管理 MOCK ---
+                const pillList = ref([
+                    { id: 1, name: '二甲双胍片', time: '11:30', dose: '1片' },
+                    { id: 2, name: '阿司匹林肠溶片', time: '08:00', dose: '1片' }
+                ]);
+                const pillForm = ref({ name: '', time: '08:00', dose: '1片' });
+                const addPill = () => {
+                    if (!pillForm.value.name) {
+                        showToast('❌ 请填写药物名称！');
+                        return;
+                    }
+                    pillList.value.push({ id: Date.now(), ...pillForm.value });
+                    pillForm.value = { name: '', time: '08:00', dose: '1片' };
+                    showToast('⏰ 服药闹钟已加锁设置！');
+                };
+                const deletePill = (id) => {
+                    pillList.value = pillList.value.filter(p => p.id !== id);
+                    showToast('🗑️ 服药提醒已移除。');
+                };
+
+                const mockHealthArticles = [
+                    { id: 1, tag: '用药安全', title: '老年高血压患者服用利尿剂的三大关键禁忌', summary: '高血压老人在使用螺内酯、氢氯噻嗪等利尿剂时必须定时复查电解质，避免在夜间睡前吃药，防止夜尿过多跌倒...', source: '中国心血管用药防治手册' },
+                    { id: 2, tag: '饮食营养', title: '2型糖尿病老人夏季低血糖预防及水果选择指南', summary: '糖尿病长辈并非绝对不能吃水果，在两餐之间可适量食用草莓、西柚，并严格控制在200克内，严禁空腹过度运动...', source: '北京老年健康研究院科学膳食指导' },
+                    { id: 3, tag: '急救科普', title: '居家突发心脑血管意外急救指南“黄金4分钟”', summary: '老人若出现嘴歪、一侧手脚发麻无力（脑卒中前兆），不可随意挪动。应解开衣领、立即拨打120，保持呼吸道通畅...', source: '国家卫健委老年急救科' }
+                ];
+
+                // 一键紧急援助 SOS 触发
+                const triggerSOS = () => {
+                    showToast('🚨 已紧急呼叫社区网格护士长与就近养老急救员，报警定位已发送，应急小组即刻上门！');
+                };
+
+                // --- RAG 后台运维管理 MOCK 数据及动作 ---
+                const chunkSettings = ref({ size: 300, overlap: 50 });
+                const uploadStatus = ref(null);
+                const triggerMockUpload = () => {
+                    uploadStatus.value = { name: '2026年社区高龄老人特殊关怀和补贴落实方案_最终版.pdf', progress: 10, message: '系统正在解析并解析 PDF 原文...' };
+                    const interval = setInterval(() => {
+                        if (uploadStatus.value.progress < 100) {
+                            uploadStatus.value.progress += 30;
+                            if (uploadStatus.value.progress === 40) uploadStatus.value.message = '正在提取文本，自动对长表格进行还原...';
+                            if (uploadStatus.value.progress === 70) uploadStatus.value.message = '正在向量化对切片进行 Embedding 转算维度...';
+                        } else {
+                            uploadStatus.value.message = '分片入向量数据库成功！已新增6个知识片段。';
+                            clearInterval(interval);
+                            // 将上传的新内容充实到切片可视化列表中展示
+                            mockChunks.unshift(
+                                { content: '2026年特殊关怀落实：对具有北京市户籍，且失能程度评定为中度、重度的养老孤老或优抚对象增发400元居家养老护理券，由街乡政务大厅在每月首旬发放至北京养老卡内。', source: '特殊关怀和补贴落实方案.pdf', len: 110, hash: 'a1b2c3d4' },
+                                { content: '2026年补贴发放：不与本市低保政策重合发放。如老人同时符合特困供养、高龄津贴和长护险多重政策，则按照就高、不重复的申报程序，由家属在养老平台上合并进行申报和抵扣。', source: '特殊关怀和补贴落实方案.pdf', len: 104, hash: 'e5f6g7h8' }
+                            );
+                            showToast('📁 文档分块(RAG-Chunking)及向量写入已成功完成！');
+                        }
+                    }, 800);
+                };
+
+                // 分片可视化数据
+                const mockChunks = ref([
+                    { content: '高龄津贴申报标准：凡年满70周岁至79周岁，具有本市户籍且无其他固定养老救助保障的普通老年人，均可按月领取本市100元高龄营养津贴补贴。外市户籍暂不支持直接发放。', source: '高龄津贴发放实施细则.pdf', len: 98, hash: 'f2a71d9e' },
+                    { content: '长期护理险评估条件：重度失能评级需满足Barthel指数测算低于40分，由专业医养评估团队上门进行动作行为量化测评，主要考察穿衣、洗澡、进食、控制排便、上下楼梯等10大项。', source: '长护险定点评估申报指南.pdf', len: 122, hash: 'c9b4e5a2' },
+                    { content: '糖尿病夏日食谱推荐：建议老年人以五谷杂粮等低GI复合碳水化合物为主，红薯中钾含量虽高但升糖指数中等，建议代替白米饭作为半份主食。切勿空腹大剂量用药后暴饮暴食。', source: '中国老年膳食指导手册.docx', len: 115, hash: 'd5c2e1f4' },
+                    { content: '系统养老卡绑定流程：家属在APP进入“用户中心”，点击“家属账号绑定”。输入被保障老人的姓名、18位身份证号，并点击由老人持卡人手机获取的四位验证码，即可一键合并查询。', source: '养老系统FAQ操作手册.txt', len: 107, hash: 'b1a8f9d0' }
+                ]);
+
+                // 问答日志
+                const mockQaLogs = ref([
+                    { id: 1, query: '75岁农村户口有多少补贴？', kb: '政策法规库', score: '0.892', rating: 'good' },
+                    { id: 2, query: '糖尿病老人吃红薯行吗？', kb: '健康科普库', score: '0.941', rating: 'good' },
+                    { id: 3, query: '长护险怎么才能免费申请？', kb: '政策法规库', score: '0.782', rating: 'bad' },
+                    { id: 4, query: '系统验证码收不到咋办？', kb: '平台操作库', score: '0.910', rating: 'good' }
+                ]);
+
+                const optimizeChunk = (log) => {
+                    showToast(`🛠️ 已将提问[${log.query}]标记为调优，已在当前向量数据库中对该长难句段进行了二次重切片及词义聚类优化！`);
+                    log.rating = 'good';
+                    log.score = '0.965';
+                };
+
+                const showOriginalDoc = (policyName) => {
+                    const chunk = mockChunks.value.find(c => c.source.includes(policyName.slice(0, 3))) || mockChunks.value[0];
+                    citationDoc.value = {
+                        doc: chunk.source,
+                        page: '12',
+                        content: chunk.content
+                    };
+                };
+
+                // --- AI 助手核心状态及交互 ---
+                const aiOpen = ref(false);
+                const currentKbType = ref('platform'); // platform, policy, health, services
+                const userInput = ref('');
+                const isAiTyping = ref(false);
+                const isSpeaking = ref(false);
+                const isRecording = ref(false);
+                const messageBox = ref(null);
+                const activeKBScanningText = ref('');
+
+                const kbNameMap = {
+                    platform: '💻 综合及系统FAQ操作库',
+                    policy: '📜 地方涉老政策法规库',
+                    health: '🏥 老慢病健康科普知识库',
+                    services: '🏨 优选养老机构与居家服务库'
+                };
+
+                const placeholderMap = {
+                    platform: '想问：怎么用本网站？家属如何绑定？',
+                    policy: '口语问：“我75岁没退休金怎么申报补贴？”',
+                    health: '口语问：“高血压吃药能喝茶水吗？”',
+                    services: '口语问：“帮我推荐一家朝阳区带医护的养老院”'
+                };
+
+                // 快捷提示卡
+                const quickQuestionsMap = {
+                    platform: ['如何合并绑定老人的北京养老卡？', '养老消费券怎样提现和抵扣？'],
+                    policy: ['我今年75岁本地户口可以拿多少高龄补贴？', '长护险到底去哪里评估？需要什么材料？'],
+                    health: ['得了2型糖尿病能吃红薯吗？', '高血压服药有什么禁忌？'],
+                    services: ['海淀区有什么口碑好、管饭的养老院？', '居家预约保洁怎么收费？']
+                };
+
+                // 预置聊天历史
+                const chatHistory = ref([
+                    { role: 'assistant', text: '您好！我是您的专属智能养老小管家。我已自动感知并关联了[综合库]，有什么我可以为您指导或解答的吗？大字板模式下也支持用语音呼唤我哦。' }
+                ]);
+
+                // 场景感知打开 AI 并初始化预设问题
+                const openAIScene = (kbType, customInput = '') => {
+                    currentKbType.value = kbType;
+                    aiOpen.value = true;
+                    if (customInput) {
+                        userInput.value = customInput;
+                        handleSendMessage();
+                    } else {
+                        chatHistory.value.push({
+                            role: 'assistant',
+                            text: `已为您无缝切换至：【${kbNameMap[kbType]}】模式。我将专门负责本页面的疑惑解答，请问您有什么想了解的？`
+                        });
+                        scrollChatToBottom();
+                    }
+                };
+
+                const consultPolicy = (name) => {
+                    openAIScene('policy', `关于《${name}》，我适合办理吗？具体可以申领到多少钱，去哪里办？`);
+                };
+
+                const consultHealth = (title) => {
+                    openAIScene('health', `我想具体咨询一下关于 [${title}] 里的内容与安全用药指导。`);
+                };
+
+                // 发送快捷预设问题
+                const sendPresetQuestion = (question) => {
+                    userInput.value = question;
+                    handleSendMessage();
+                };
+
+                // 模拟语音录入 (口语化自动转文字)
+                const simulateSpeech = () => {
+                    if (isRecording.value) return;
+                    isRecording.value = true;
+                    showToast('🎤 正在倾听您说话... (模拟方言识别及口语自适应中)');
+                    setTimeout(() => {
+                        isRecording.value = false;
+                        if (currentKbType.value === 'policy') {
+                            userInput.value = '我妈75岁了农村户口，平常手脚有点不好，能申请那个什么补贴钱不？';
+                        } else if (currentKbType.value === 'health') {
+                            userInput.value = '血压高的老头子，天天早晨吃药，听说能吃红薯是真的不？';
+                        } else if (currentKbType.value === 'services') {
+                            userInput.value = '我想找一间在昌平这边，收费不要太贵，最好带医养结合和无障碍电梯的养老院。';
+                        } else {
+                            userInput.value = '怎么把孩子绑在我的养老账户上面？';
+                        }
+                        showToast('🎤 识别完成！口语自适应纠偏已填入');
+                    }, 2000);
+                };
+
+                // 文字播报 (使用原生 Web Speech API 进行文字转语音)
+                const speakText = (text) => {
+                    if (isSpeaking.value) {
+                        window.speechSynthesis.cancel();
+                        isSpeaking.value = false;
+                        return;
+                    }
+                    if ('speechSynthesis' in window) {
+                        isSpeaking.value = true;
+                        // 过滤掉引用及免责片段再发声，防止老人听不懂技术词
+                        const spokenText = text.split('本次生成参考了')[0].split('免责及免责安全屏障')[0];
+                        const utterance = new SpeechSynthesisUtterance(spokenText);
+                        utterance.lang = 'zh-CN';
+                        utterance.rate = 0.9; // 语速慢，体贴老年人
+                        utterance.onend = () => { isSpeaking.value = false; };
+                        utterance.onerror = () => { isSpeaking.value = false; };
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        showToast('❌ 您的浏览器不支持语音播报功能。');
+                    }
+                };
+
+                // 滚动底部
+                const scrollChatToBottom = () => {
+                    nextTick(() => {
+                        if (messageBox.value) {
+                            messageBox.value.scrollTop = messageBox.value.scrollHeight;
+                        }
+                    });
+                };
+
+                // 高亮引用源
+                const highlightCitation = (cite) => {
+                    const chunk = mockChunks.value.find(c => c.source === cite.doc) || mockChunks.value[0];
+                    citationDoc.value = {
+                        doc: cite.doc,
+                        page: cite.page,
+                        content: chunk.content
+                    };
+                };
+
+                // ── API 后端地址（与 FastAPI 同域部署时用相对路径）──
+                const API_BASE = window.location.hostname === 'localhost'
+                    ? 'http://localhost:8000'
+                    : '';
+
+                // --- RAG 检索增强核心引擎（调用后端 API） ---
+                const handleSendMessage = async () => {
+                    if (!userInput.value.trim() || isAiTyping.value) return;
+
+                    const userText = userInput.value;
+                    const sessionId = 'vue-' + Date.now();
+                    chatHistory.value.push({ role: 'user', text: userText });
+                    userInput.value = '';
+                    isAiTyping.value = true;
+                    scrollChatToBottom();
+
+                    // 扫描动效
+                    let step = 0;
+                    const scanningInterval = setInterval(() => {
+                        const loadingPhrases = [
+                            `正在检索知识库中...`,
+                            '召回相关向量分片进行融合...',
+                            '正在整理回答...'
+                        ];
+                        activeKBScanningText.value = loadingPhrases[step % 3];
+                        step++;
+                    }, 600);
+
+                    try {
+                        const response = await fetch(`${API_BASE}/api/v1/chat`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                query: userText,
+                                session_id: sessionId,
+                                use_agent: false
+                            })
+                        });
+
+                        clearInterval(scanningInterval);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                        const data = await response.json();
+
+                        let text = data.answer || '抱歉，暂时无法处理您的请求。';
+                        let citations = (data.sources || []).map(s => ({
+                            doc: s.title || '参考来源',
+                            page: ''
+                        }));
+                        let isMedical = data.intent === 'health';
+                        let disclaimer = data.disclaimer || '';
+
+                        // 添加来源信息
+                        if (data.answer && data.sources && data.sources.length > 0) {
+                            // 来源已在 answer 中包含，不再重复添加
+                        }
+
+                        chatHistory.value.push({
+                            role: 'assistant',
+                            text: text,
+                            citations: citations,
+                            isMedical: isMedical,
+                            disclaimer: disclaimer,
+                            intent: data.intent,
+                            kb: data.kb
+                        });
+                    } catch (err) {
+                        clearInterval(scanningInterval);
+                        console.error('API调用失败：', err);
+
+                        chatHistory.value.push({
+                            role: 'assistant',
+                            text: '抱歉，AI助手暂时无法连接，请稍后重试或拨打客服热线获取帮助。',
+                            citations: [],
+                            isMedical: false,
+                            disclaimer: ''
+                        });
+                    }
+
+                    isAiTyping.value = false;
+                    scrollChatToBottom();
+
+                    // 适老模式下自动语音播报
+                    if (isSeniorMode.value) {
+                        const lastMsg = chatHistory.value[chatHistory.value.length - 1];
+                        if (lastMsg && lastMsg.text) {
+                            speakText(lastMsg.text);
+                        }
+                    }
+                };
+
+                return {
+                    isSeniorMode,
+                    currentTab,
+                    serviceTab,
+                    menuTabs,
+                    toggleSeniorMode,
+                    switchTab,
+                    toast,
+                    toastText,
+                    citationDoc,
+                    
+                    // 养老大厅
+                    mockInstitutes,
+                    filters,
+                    filteredInstitutes,
+                    resetFilters,
+                    bookInstitute,
+                    orderForm,
+                    orderList,
+                    submitOrder,
+                    cancelOrder,
+                    
+                    // 政策大厅
+                    mockPolicies,
+                    calcForm,
+                    calcResult,
+                    calculateBenefits,
+                    showOriginalDoc,
+
+                    // 健康管理
+                    pillList,
+                    pillForm,
+                    addPill,
+                    deletePill,
+                    mockHealthArticles,
+                    triggerSOS,
+
+                    // RAG后台
+                    chunkSettings,
+                    uploadStatus,
+                    triggerMockUpload,
+                    mockChunks,
+                    mockQaLogs,
+                    optimizeChunk,
+
+                    // AI 助手相关
+                    aiOpen,
+                    currentKbType,
+                    userInput,
+                    isAiTyping,
+                    isSpeaking,
+                    isRecording,
+                    messageBox,
+                    activeKBScanningText,
+                    kbNameMap,
+                    placeholderMap,
+                    quickQuestionsMap,
+                    chatHistory,
+                    openAIScene,
+                    consultPolicy,
+                    consultHealth,
+                    sendPresetQuestion,
+                    simulateSpeech,
+                    speakText,
+                    highlightCitation,
+                    handleSendMessage
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
