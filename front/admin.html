@@ -121,8 +121,7 @@ function checkAdmin() {
 // 加载统计
 async function loadStats() {
   try {
-    var r = await authFetch( '/admin/debug/stats');
-    var d = await r.json();
+    var d = await authFetch('/admin/debug/stats');
     document.getElementById('stat-requests').textContent = d.runtime.requests;
     document.getElementById('stat-llm').textContent = d.runtime.llm_calls;
     document.getElementById('stat-cache').textContent = d.runtime.query_cache.hit_rate;
@@ -150,8 +149,7 @@ async function loadStats() {
 // 加载日志
 async function loadLogs() {
   try {
-    var r = await authFetch( '/admin/logs?limit=20');
-    var d = await r.json();
+    var d = await authFetch('/admin/logs?limit=20');
     var logs = d.data || [];
     var html = '';
     logs.forEach(function(l) {
@@ -172,8 +170,7 @@ async function loadLogs() {
 // KB重载
 async function reloadKB() {
   try {
-    var r = await authFetch( '/admin/kb/reload');
-    var d = await r.json();
+    var d = await authFetch('/admin/kb/reload');
     alert('知识库重载完成\n' + JSON.stringify(d.stats));
     loadStats();
   } catch(e) { alert('重载失败：'+e.message); }
@@ -191,8 +188,7 @@ document.getElementById('upload-form').addEventListener('submit', async function
   msgEl.classList.remove('hidden');
   msgEl.textContent = '上传中...';
   try {
-    var r = await authFetch( '/admin/docs/upload', { method: 'POST', body: formData });
-    var d = await r.json();
+    var d = await authFetch('/admin/docs/upload', { method: 'POST', body: formData });
     msgEl.textContent = d.message || '上传成功';
     msgEl.className = 'text-xs mt-2 text-emerald-600';
     loadStats();
@@ -210,12 +206,9 @@ async function dryRun() {
   pre.classList.remove('hidden');
   pre.textContent = '测试中...';
   try {
-    var r = await authFetch( '/admin/debug/dry-run', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({query: q})
+    var d = await authFetch('/admin/debug/dry-run', {
+      method: 'POST', body: JSON.stringify({query: q})
     });
-    var d = await r.json();
     pre.textContent = JSON.stringify(d, null, 2);
   } catch(e) {
     pre.textContent = '错误：'+e.message;
