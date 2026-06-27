@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康科普 - 智慧养老云平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div id="navbar"></div>
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h2 class="text-2xl font-bold text-slate-800 mb-2">💊 健康科普</h2>
+  <p class="text-sm text-slate-500 mb-6">权威老年健康知识，科学护理指南</p>
+
+  <!-- 健康科普问答 -->
+  <div class="bg-white rounded-xl border border-slate-100 p-5 mb-6 shadow-sm">
+    <h3 class="font-bold text-slate-700 mb-4">🔍 健康咨询</h3>
+    <form id="health-form" class="flex gap-2 mb-4">
+      <input id="health-input" type="text" placeholder="如：糖尿病老人饮食注意什么"
+        class="flex-1 border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-emerald-400">
+      <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-all">咨询</button>
+    </form>
+    <div id="health-answer" class="text-sm text-slate-600 bg-emerald-50 rounded-lg p-3 hidden"></div>
+    <p class="text-xs text-slate-400 mt-2">⚠️ 以上内容仅供科普参考，不构成医疗诊断或处方建议</p>
+  </div>
+
+  <!-- 科普栏目 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm">
+      <h4 class="font-bold text-slate-700 mb-2">🫀 慢性病护理</h4>
+      <p class="text-sm text-slate-500">高血压、糖尿病、心脏病日常管理与注意事项</p>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm">
+      <h4 class="font-bold text-slate-700 mb-2">💪 饮食运动</h4>
+      <p class="text-sm text-slate-500">老年人营养搭配指南、适宜运动推荐</p>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm">
+      <h4 class="font-bold text-slate-700 mb-2">💊 安全用药</h4>
+      <p class="text-sm text-slate-500">用药注意事项、药物相互作用提醒</p>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm">
+      <h4 class="font-bold text-slate-700 mb-2">🚑 急救常识</h4>
+      <p class="text-sm text-slate-500">常见突发状况应急处理方法</p>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+const API_BASE = 'http://localhost:8000';
+document.getElementById('health-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = document.getElementById('health-input').value.trim();
+  if (!q) return;
+  const ans = document.getElementById('health-answer');
+  ans.classList.remove('hidden');
+  ans.textContent = '查询中...';
+  try {
+    const r = await fetch(API_BASE + '/api/v1/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query: q, session_id: 'health_' + Date.now()})
+    });
+    const d = await r.json();
+    ans.textContent = d.answer;
+  } catch(err) {
+    ans.textContent = '查询失败：' + err.message;
+  }
+});
+document.addEventListener('DOMContentLoaded', () => renderNavbar());
+</script>
+</body>
+</html>
