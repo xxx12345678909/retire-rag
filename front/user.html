@@ -167,8 +167,8 @@
         var relation = document.getElementById('family-relation').value;
         var msgEl = document.getElementById('bind-message');
 
-        if (!name || !idcard) {
-            msgEl.textContent = '请填写家属姓名和身份证号';
+        if (!name || !phone) {
+            msgEl.textContent = '请填写家属姓名和手机号';
             msgEl.className = 'text-xs mt-3 text-red-500';
             msgEl.classList.remove('hidden');
             return;
