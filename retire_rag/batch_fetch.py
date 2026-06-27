@@ -44,11 +44,17 @@ KB_ALIASES = {
 
 def ddg_search(query: str, site: str = "gov.cn") -> list[dict]:
     """DDG 搜索，返回 [{title, url}]"""
-    q = f"site:{site} {query} filetype:pdf"
+    q = f"{query} filetype:pdf site:{site}"
     url = f"https://html.duckduckgo.com/html/?q={quote(q)}"
     for attempt in range(MAX_RETRIES + 1):
         try:
+            time.sleep(1.5)  # 请求前等待，降低触发限流概率
             resp = requests.get(url, headers=HEADERS, timeout=15)
+            if resp.status_code == 202 or len(resp.text) < 5000:
+                if attempt < MAX_RETRIES:
+                    time.sleep(5)
+                    continue
+                return []
             soup = BeautifulSoup(resp.text, "html.parser")
             results = []
             for a in soup.select("a.result__a"):
@@ -62,24 +68,27 @@ def ddg_search(query: str, site: str = "gov.cn") -> list[dict]:
                 return results
         except Exception as e:
             if attempt < MAX_RETRIES:
-                time.sleep(2)
+                time.sleep(5)
             else:
                 logger.error(f"[DDG] search failed: {e}")
     return []
 
 
 def download_pdf(url: str, save_dir: str) -> str | None:
-    """下载 PDF，返回文件路径"""
+    """下载 PDF（MD5 命名，避免中文路径过长）"""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=30, stream=True)
-        if resp.status_code != 200 or "application/pdf" not in resp.headers.get("Content-Type", ""):
+        if resp.status_code != 200:
             return None
-        fname = url.split("/")[-1].split("?")[0]
-        if not fname.endswith(".pdf"):
-            fname = hashlib.md5(url.encode()).hexdigest()[:12] + ".pdf"
+        ct = resp.headers.get("Content-Type", "")
+        if "pdf" not in ct and "octet-stream" not in ct and not url.endswith(".pdf"):
+            return None
+        # 用 URL 的 MD5 做文件名，避免中文编码路径过长
+        fname = hashlib.md5(url.encode()).hexdigest()[:16] + ".pdf"
         path = os.path.join(save_dir, fname)
         with open(path, "wb") as f:
-            f.write(resp.content)
+            for chunk in resp.iter_content(8192):
+                f.write(chunk)
         return path
     except Exception as e:
         logger.error(f"[Download] {url[:60]}: {e}")
