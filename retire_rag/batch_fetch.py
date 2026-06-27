@@ -34,8 +34,16 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                   "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 }
-REQUEST_DELAY = 2.5   # 每次请求间隔（秒）
+REQUEST_DELAY = 3.0   # 每次请求间隔（秒）
 MAX_PDFS = 10          # 单次最大下载数
+MAX_RETRIES = 2        # DDG 搜索重试次数
+
+KB_ALIASES = {
+    "政策": "policy", "法规": "policy", "政策法规": "policy",
+    "服务": "service", "养老": "service",
+    "健康": "health", "医疗": "health", "科普": "health",
+    "平台": "platform", "操作": "platform",
+}
 
 
 def duckduckgo_search(query: str, site: str = "gov.cn") -> list[dict]:
@@ -43,21 +51,27 @@ def duckduckgo_search(query: str, site: str = "gov.cn") -> list[dict]:
     q = f"site:{site} {query} filetype:pdf"
     url = f"https://html.duckduckgo.com/html/?q={quote(q)}"
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(resp.text, "html.parser")
-        results = []
-        for a in soup.select("a.result__a"):
-            title = a.get_text(strip=True)
-            href = a.get("href", "")
-            # DDG 重定向格式: //duckduckgo.com/l/?uddg=<encoded_url>
-            if "/l/?uddg=" in href:
-                from urllib.parse import unquote
-                real_url = unquote(href.split("uddg=")[-1].split("&")[0])
-                if real_url.endswith(".pdf") or site in real_url:
-                    results.append({"title": title, "url": real_url})
-        return results
-    except Exception as e:
-        logger.error(f"[DDG] 搜索失败: {e}")
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                resp = requests.get(url, headers=HEADERS, timeout=15)
+                soup = BeautifulSoup(resp.text, "html.parser")
+                results = []
+                for a in soup.select("a.result__a"):
+                    title = a.get_text(strip=True)
+                    href = a.get("href", "")
+                    if "/l/?uddg=" in href:
+                        from urllib.parse import unquote
+                        real_url = unquote(href.split("uddg=")[-1].split("&")[0])
+                        # DDG 已按 filetype:pdf 过滤，直接收录
+                        if real_url.startswith("http") and "gov.cn" in real_url:
+                            results.append({"title": title, "url": real_url})
+                if results:
+                    return results
+            except Exception as e:
+                if attempt < MAX_RETRIES:
+                    time.sleep(2)
+                    continue
+                logger.error(f"[DDG] 搜索失败: {e}")
         return []
 
 
@@ -88,8 +102,9 @@ def main():
 
     seed = sys.argv[1]
     kb = sys.argv[2] if len(sys.argv) > 2 else "policy"
+    kb = KB_ALIASES.get(kb, kb)  # 支持中文名映射
     if kb not in ("policy", "service", "health", "platform"):
-        print(f"未知知识库 '{kb}'，可选: policy, service, health, platform")
+        print(f"未知知识库 '{kb}'，可选: policy(政策), service(服务), health(健康), platform(平台)")
         return
 
     data_dir = Path(chroma_conf["collections"][kb]["data_path"])
