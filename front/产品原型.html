@@ -983,6 +983,35 @@
                 const registerForm = ref({ username: '', password: '', phone: '' });
                 const isRegistering = ref(false);
 
+                // ── 健康档案（提前定义，给 loadAuth 调用） ──
+                const healthProfile = ref({ elder_name: '', age: '', chronic_diseases: '', medications: '', notes: '' });
+                const healthLoaded = ref(false);
+                const fetchHealthProfile = async () => {
+                    if (!authToken.value) return;
+                    try {
+                        const r = await fetch(`${API_BASE}/api/health/profile`, {
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                        });
+                        if (r.ok) {
+                            const d = await r.json();
+                            if (d && d.elder_name) healthProfile.value = d;
+                        }
+                    } catch(e) {}
+                    healthLoaded.value = true;
+                };
+                const saveHealthProfile = async () => {
+                    if (!authToken.value) { showToast('请先登录'); return; }
+                    try {
+                        const r = await fetch(`${API_BASE}/api/health/profile`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+                            body: JSON.stringify(healthProfile.value)
+                        });
+                        if (r.ok) showToast('健康档案已保存');
+                        else showToast('保存失败');
+                    } catch(e) { showToast('网络错误'); }
+                };
+
                 const loadAuth = async () => {
                     if (!authToken.value) { authLoaded.value = true; return; }
                     try {
@@ -1321,35 +1350,6 @@
                         const d = await r.json();
                         showToast('🚨 ' + (d.message || '紧急呼叫已发送'));
                     } catch(e) { showToast('🚨 紧急呼叫已发送，工作人员将尽快响应'); }
-                };
-
-                // ── 健康档案（真实 API） ──
-                const healthProfile = ref({ elder_name: '', age: '', chronic_diseases: '', medications: '', notes: '' });
-                const healthLoaded = ref(false);
-                const fetchHealthProfile = async () => {
-                    if (!authToken.value) return;
-                    try {
-                        const r = await fetch(`${API_BASE}/api/health/profile`, {
-                            headers: { 'Authorization': `Bearer ${authToken.value}` }
-                        });
-                        if (r.ok) {
-                            const d = await r.json();
-                            if (d && d.elder_name) healthProfile.value = d;
-                        }
-                    } catch(e) {}
-                    healthLoaded.value = true;
-                };
-                const saveHealthProfile = async () => {
-                    if (!authToken.value) { showToast('请先登录'); return; }
-                    try {
-                        const r = await fetch(`${API_BASE}/api/health/profile`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
-                            body: JSON.stringify(healthProfile.value)
-                        });
-                        if (r.ok) showToast('健康档案已保存');
-                        else showToast('保存失败');
-                    } catch(e) { showToast('网络错误'); }
                 };
 
                 // --- RAG 后台运维管理 MOCK 数据及动作 ---
