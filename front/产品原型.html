@@ -369,29 +369,38 @@
                         <h3 class="font-bold text-lg mb-4 border-b pb-2 flex items-center gap-2">
                             <span>✍️</span> 提交居家预约单
                         </h3>
-                        <div class="space-y-4">
+                        <p v-if="!authUser" class="text-amber-600 text-sm">请先登录后再预约</p>
+                        <div class="space-y-4" v-else>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">选择服务项目</label>
-                                <select v-model="orderForm.serviceType" class="w-full border rounded-lg p-2.5 text-sm bg-slate-50">
-                                    <option value="助餐服务">🍱 适老爱心午餐/晚餐送上门 (¥15/餐)</option>
-                                    <option value="助洁服务">🧹 居家深度保洁与衣物清洗 (¥40/小时)</option>
-                                    <option value="助医服务">🏥 陪同老人去医院排队取药挂号 (¥120/次)</option>
-                                    <option value="陪护服务">👵 专业护工居家看护伴宿 (¥260/天)</option>
+                                <label class="block text-xs font-bold text-slate-500 mb-2">选择服务项目</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div v-for="s in serviceList" :key="s.id"
+                                         @click="orderForm.service_id = s.id; orderForm.service_name = s.name"
+                                         :class="orderForm.service_id === s.id ? 'ring-2 ring-emerald-500 bg-emerald-50' : 'hover:bg-slate-50'"
+                                         class="border rounded-lg p-3 cursor-pointer text-sm transition-all">
+                                        <div class="font-bold">{{ s.icon || '' }} {{ s.name }}</div>
+                                        <div class="text-xs text-slate-400">{{ s.description }}</div>
+                                        <div class="text-emerald-600 font-bold text-xs mt-1">{{ s.price }}元/{{ s.unit }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">服务日期</label>
+                                <input v-model="orderForm.date" type="date" class="w-full border rounded-lg p-2.5 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">时段</label>
+                                <select v-model="orderForm.time_slot" class="w-full border rounded-lg p-2.5 text-sm">
+                                    <option value="上午">上午 (8:00-12:00)</option>
+                                    <option value="下午">下午 (13:00-17:00)</option>
+                                    <option value="全天">全天 (8:00-17:00)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">服务对象姓名</label>
-                                <input v-model="orderForm.elderName" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="请输入被看护老人姓名">
+                                <label class="block text-xs font-bold text-slate-500 mb-1">备注</label>
+                                <input v-model="orderForm.notes" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="特殊需求说明（选填）">
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">上门服务地址</label>
-                                <input v-model="orderForm.address" type="text" class="w-full border rounded-lg p-2.5 text-sm" placeholder="请输入完整门牌号">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">服务日期与时间</label>
-                                <input v-model="orderForm.time" type="datetime-local" class="w-full border rounded-lg p-2.5 text-sm">
-                            </div>
-                            <button @click="submitOrder" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg text-sm shadow transition-all">
+                            <button @click="submitOrder" :disabled="!orderForm.service_id" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold py-3 rounded-lg text-sm shadow transition-all">
                                 提交上门预约订单
                             </button>
                         </div>
@@ -1051,7 +1060,7 @@
 
                 // 居家上门预约（真实 API）
                 const serviceList = ref([]);
-                const orderForm = ref({ service_id: '', service_name: '', date: '', time_slot: '上午', notes: '' });
+                const orderForm = ref({ service_id: null, service_name: '', date: new Date().toISOString().slice(0,10), time_slot: '上午', notes: '' });
                 const orderList = ref([]);
                 const orderLoading = ref(false);
 
@@ -1144,25 +1153,47 @@
                     showToast('🎉 AI 养老评估匹配成功！');
                 };
 
-                // --- 健康管理 MOCK ---
-                const pillList = ref([
-                    { id: 1, name: '二甲双胍片', time: '11:30', dose: '1片' },
-                    { id: 2, name: '阿司匹林肠溶片', time: '08:00', dose: '1片' }
-                ]);
+                // --- 健康管理（localStorage 持久化 + 定时提醒） ---
+                const loadPills = () => {
+                    try { return JSON.parse(localStorage.getItem('pills') || '[]'); } catch(e) { return []; }
+                };
+                const savePills = () => localStorage.setItem('pills', JSON.stringify(pillList.value));
+
+                const pillList = ref(loadPills());
                 const pillForm = ref({ name: '', time: '08:00', dose: '1片' });
+                const lastAlerted = ref({});
+
                 const addPill = () => {
-                    if (!pillForm.value.name) {
-                        showToast('❌ 请填写药物名称！');
-                        return;
-                    }
+                    if (!pillForm.value.name) { showToast('请填写药物名称'); return; }
                     pillList.value.push({ id: Date.now(), ...pillForm.value });
                     pillForm.value = { name: '', time: '08:00', dose: '1片' };
-                    showToast('⏰ 服药闹钟已加锁设置！');
+                    savePills();
+                    showToast('服药闹钟已设置，到时间会提醒');
                 };
                 const deletePill = (id) => {
                     pillList.value = pillList.value.filter(p => p.id !== id);
-                    showToast('🗑️ 服药提醒已移除。');
+                    savePills();
                 };
+
+                // 每分钟检查一次服药提醒
+                setInterval(() => {
+                    const now = new Date();
+                    const current = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+                    pillList.value.forEach(p => {
+                        if (p.time === current && lastAlerted.value[p.id] !== current) {
+                            lastAlerted.value[p.id] = current;
+                            showToast(`💊 服药提醒：${p.name} ${p.dose} — 现在该吃药了！`);
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                new Notification('服药提醒', { body: `${p.name} ${p.dose}`, icon: '💊' });
+                            }
+                        }
+                    });
+                }, 60000);
+
+                // 请求通知权限
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
 
                 const mockHealthArticles = [
                     { id: 1, tag: '用药安全', title: '老年高血压患者服用利尿剂的三大关键禁忌', summary: '高血压老人在使用螺内酯、氢氯噻嗪等利尿剂时必须定时复查电解质，避免在夜间睡前吃药，防止夜尿过多跌倒...', source: '中国心血管用药防治手册' },
