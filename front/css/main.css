@@ -1,23 +1,101 @@
 /* ============================================================
-   智慧养老AI辅助平台 — 样式表
+   智慧养老云平台 — 公共样式表
+   所有页面共享的基础样式、组件、动画
    ============================================================ */
+
+/* ── 基础 ── */
 body {
-    font-family: 'Noto Sans SC', 'Inter', sans-serif;
-    background-color: #f8fafc;
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(180deg, #f0f5ff 0%, #ffffff 100%);
+    min-height: 100vh;
+    color: #1e293b;
 }
 
-/* 适老版大字号与高对比度 */
+/* ── 卡片悬浮效果 ── */
+.card-hover {
+    transition: all 0.3s ease;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(59, 120, 231, 0.15);
+}
+
+/* ── Hero 渐变背景 ── */
+.hero-gradient {
+    background: linear-gradient(135deg, #3b78e7 0%, #1a3f9e 50%, #4f8cf7 100%);
+}
+
+/* ── 图标圆形容器 ── */
+.icon-circle {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border-radius: 14px;
+}
+
+/* ── 渐入动画 ── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* ── 加载旋转 ── */
+.spinner {
+    border-top-color: #3b82f6;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── 打字机光标 ── */
+.cursor-blink::after {
+    content: '|';
+    animation: blink 1s infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* ── 隐藏滚动条 ── */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* ── Toast 通知 ── */
+.toast {
+    position: fixed;
+    top: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    background: #0f172a;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+}
+
+/* ── 适老模式 ── */
 .senior-mode { font-size: 20px !important; }
 .senior-mode .header-title { font-size: 32px !important; font-weight: 900 !important; }
 .senior-mode .nav-btn { font-size: 22px !important; padding: 12px 24px !important; font-weight: bold !important; }
 .senior-mode h1, .senior-mode h2, .senior-mode h3 { font-size: 28px !important; font-weight: 900 !important; }
 .senior-mode p, .senior-mode span, .senior-mode div, .senior-mode td { font-size: 20px !important; line-height: 1.6 !important; }
 .senior-mode input, .senior-mode select, .senior-mode textarea { font-size: 20px !important; padding: 16px !important; }
-.senior-mode .interactive-btn { padding: 16px 28px !important; font-size: 22px !important; border-width: 3px !important; border-color: #000000 !important; }
-
-/* 打字机光标特效 */
-.cursor-blink::after { content: '|'; animation: blink 1s infinite; }
-@keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
-
-/* 隐藏滚动条 */
-.no-scrollbar::-webkit-scrollbar { display: none; }
+.senior-mode .interactive-btn { padding: 16px 28px !important; font-size: 22px !important; border-width: 3px !important; border-color: #000 !important; }

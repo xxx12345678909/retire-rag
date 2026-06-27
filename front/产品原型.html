@@ -12,57 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter & Noto Sans SC -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Noto Sans SC', 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-        /* 针对适老版大字号的高对色与布局修正 */
-        .senior-mode {
-            font-size: 20px !important;
-        }
-        .senior-mode .header-title {
-            font-size: 32px !important;
-            font-weight: 900 !important;
-        }
-        .senior-mode .nav-btn {
-            font-size: 22px !important;
-            padding: 12px 24px !important;
-            font-weight: bold !important;
-        }
-        .senior-mode h1, .senior-mode h2, .senior-mode h3 {
-            font-size: 28px !important;
-            font-weight: 900 !important;
-        }
-        .senior-mode p, .senior-mode span, .senior-mode div, .senior-mode td {
-            font-size: 20px !important;
-            line-height: 1.6 !important;
-        }
-        .senior-mode input, .senior-mode select, .senior-mode textarea {
-            font-size: 20px !important;
-            padding: 16px !important;
-        }
-        .senior-mode .interactive-btn {
-            padding: 16px 28px !important;
-            font-size: 22px !important;
-            border-width: 3px !important;
-            border-color: #000000 !important;
-        }
-        /* 模拟打字机光标特效 */
-        .cursor-blink::after {
-            content: '|';
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-        /* 隐藏滚动条但保留功能 */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body class="transition-all duration-300">
     <div id="app" :class="[isSeniorMode ? 'senior-mode bg-amber-50/30 text-stone-900' : 'bg-slate-50 text-slate-800']" class="min-h-screen flex flex-col">
@@ -794,15 +744,11 @@
             </button>
         </div>
 
-        <!-- Toast 弹出提醒消息 -->
-        <div v-if="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 border border-slate-800 text-xs font-semibold animate-bounce">
-            <span>💡</span> {{ toastText }}
-        </div>
 
         
     </div>
 
-    <!-- 运行 Vue 应用控制脚本 -->
+    <script src="shared.js"></script>
     <script>
         const { createApp, ref, computed, watch, nextTick } = Vue;
 
@@ -812,9 +758,7 @@
                 const isSeniorMode = ref(false);
                 const currentTab = ref('home');
                 const serviceTab = ref('institutes');
-                const toast = ref(false);
-                const toastText = ref('');
-                
+                                
 
                 // --- 菜单列表 ---
                 const menuTabs = ref([
@@ -969,13 +913,7 @@
                 };
 
                 // --- 提示框控制 ---
-                const showToast = (text) => {
-                    toastText.value = text;
-                    toast.value = true;
-                    setTimeout(() => {
-                        toast.value = false;
-                    }, 3000);
-                };
+                const showToast = (text) => { window.showToast(text); };
 
                 // --- 标签页切换逻辑 ---
                 const switchTab = (tabId) => {
@@ -1327,9 +1265,7 @@
 
                 // 高亮引用源
                 // ── API 后端地址（与 FastAPI 同域部署时用相对路径）──
-                const API_BASE = window.location.hostname === 'localhost'
-                    ? 'http://localhost:8000'
-                    : '';
+                
 
                 // --- RAG 检索增强核心引擎（调用后端 API） ---
                 const handleSendMessage = async () => {
@@ -1441,7 +1377,7 @@
 
                 return {
                     isSeniorMode, currentTab, serviceTab, menuTabs,
-                    toggleSeniorMode, switchTab, toast, toastText, 
+                    toggleSeniorMode, switchTab,  
 
                     // 认证
                     authToken, authUser, authLoaded, showLoginModal, loginForm,
