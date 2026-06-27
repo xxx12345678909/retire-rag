@@ -22,7 +22,7 @@ def get_all_bookings(limit: int = 50) -> list[dict]:
 
 
 def update_booking_status(booking_id: int, status: str) -> bool:
-    """¸üÐÂÔ¤Ô¼×´Ì¬"""
+    """Update booking status (confirmed / cancelled)"""
     conn = _get_conn()
     try:
         conn.execute("UPDATE bookings SET status=? WHERE id=?", (status, booking_id))
