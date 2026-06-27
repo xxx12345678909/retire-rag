@@ -32,12 +32,12 @@ def init_db():
     conn.close()
 
 
-def trigger_sos(user_id: int = None, username: str = "", phone: str = "", message: str = "紧急求助") -> dict:
+def trigger_sos(user_id: int = None, username: str = "", phone: str = "", message: str = "紧急求助", location: str = "") -> dict:
     conn = _get_conn()
     created_at = datetime.now().isoformat()
     cursor = conn.execute(
-        "INSERT INTO sos_alerts (user_id, username, phone, message, status, created_at) VALUES (?,?,?,?,?,?)",
-        (user_id, username, phone, message, "active", created_at),
+        "INSERT INTO sos_alerts (user_id, username, phone, location, message, status, created_at) VALUES (?,?,?,?,?,?,?)",
+        (user_id, username, phone, location or "定位获取中...", message, "active", created_at),
     )
     conn.commit()
     row = conn.execute("SELECT * FROM sos_alerts WHERE id=?", (cursor.lastrowid,)).fetchone()

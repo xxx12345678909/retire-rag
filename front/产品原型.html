@@ -1343,13 +1343,24 @@
                 // 一键紧急援助 SOS 触发
                 const triggerSOS = async () => {
                     if (!authToken.value) { showToast('请先登录后再使用紧急呼叫'); return; }
+                    // 获取设备位置
+                    let location = '定位获取中...';
+                    if ('geolocation' in navigator) {
+                        try {
+                            const pos = await new Promise((resolve, reject) => {
+                                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000, enableHighAccuracy: true });
+                            });
+                            location = `${pos.coords.latitude.toFixed(5)},${pos.coords.longitude.toFixed(5)}`;
+                        } catch(e) {}
+                    }
                     try {
                         const r = await fetch(`${API_BASE}/api/sos/trigger`, {
                             method: 'POST',
-                            headers: { 'Authorization': `Bearer ${authToken.value}` }
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
+                            body: JSON.stringify({ location })
                         });
                         const d = await r.json();
-                        showToast('🚨 ' + (d.message || '紧急呼叫已发送'));
+                        showToast('🚨 ' + (d.message || '紧急呼叫已发送，位置已上报'));
                     } catch(e) { showToast('🚨 紧急呼叫已发送，工作人员将尽快响应'); }
                 };
 
