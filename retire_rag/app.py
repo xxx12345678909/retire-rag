@@ -47,6 +47,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
 from service.chat_service import chat_service
+from service import persist
 from agent.react_agent import agent as react_agent
 from utils.config_handler import chroma_conf
 from utils.logger_handler import logger
@@ -140,19 +141,19 @@ async def chat(req: ChatRequest):
     # ChatService 模式（推荐）
     result = chat_service.handle(req.query, req.session_id)
 
-    # 记录日志
+    # 记录日志（SQLite 持久化）
     log_entry = {
         "id": uuid.uuid4().hex[:12],
         "timestamp": datetime.now().isoformat(),
         "query": req.query,
-        "answer": result["answer"][:500],
+        "answer": result["answer"][:2000],
         "intent": result.get("intent"),
         "kb": result.get("kb"),
         "sources": [s["title"] for s in result.get("sources", [])],
         "feedback": None,
         "session_id": req.session_id,
     }
-    _qa_logs.append(log_entry)
+    persist.save_qa_log(log_entry)
     logger.info(f"[QA日志]id={log_entry['id']} intent={log_entry['intent']} kb={log_entry['kb']}")
 
     return ChatResponse(
@@ -240,10 +241,6 @@ async def upload_document(
 # 问答日志 API
 # ═══════════════════════════════════════════════════════
 
-# 简易内存日志（生产环境应换数据库）
-_qa_logs: list[dict] = []
-
-
 @app.get("/admin/kb/reload")
 async def reload_knowledge_base(kb: str = None):
     """重新加载知识库数据（扫描data目录并向量化）
@@ -270,29 +267,32 @@ async def reload_knowledge_base(kb: str = None):
 
 @app.get("/admin/logs")
 async def get_logs(limit: int = 50, kb: str = None):
-    """获取问答日志
-
-    Args:
-        limit: 返回条数上限
-        kb: 按知识库筛选，不传则全量
-    """
-    logs = _qa_logs
-    if kb:
-        logs = [l for l in logs if l.get("kb") == kb]
-    return {"data": logs[-limit:], "total": len(logs)}
+    """获取问答日志（SQLite 持久化）"""
+    logs = persist.get_qa_logs(limit=limit, kb=kb)
+    return {"data": logs, "total": len(logs)}
 
 
 @app.post("/admin/logs/feedback")
 async def submit_feedback(fb: FeedbackRequest):
     """提交回答质量反馈"""
-    for log in _qa_logs:
-        if log.get("id") == fb.log_id:
-            log["feedback"] = fb.score
-            log["feedback_comment"] = fb.comment
-            logger.info(f"[admin]反馈已记录：log_id={fb.log_id} score={fb.score}")
-            return {"message": "反馈已提交，感谢您的评价！"}
-
+    ok = persist.update_feedback(fb.log_id, fb.score, fb.comment)
+    if ok:
+        logger.info(f"[admin]反馈已记录：log_id={fb.log_id} score={fb.score}")
+        return {"message": "反馈已提交，感谢您的评价！"}
     return JSONResponse({"error": "未找到对应日志"}, status_code=404)
+
+
+@app.get("/admin/kb/chunk-config")
+async def get_chunk_cfg():
+    """获取分片配置"""
+    return {"data": persist.get_chunk_config()}
+
+
+@app.put("/admin/kb/chunk-config")
+async def update_chunk_cfg(key: str, value: str):
+    """更新分片配置"""
+    persist.save_chunk_config(key, value)
+    return {"message": "配置已更新", "key": key, "value": value}
 
 
 # ═══════════════════════════════════════════════════════

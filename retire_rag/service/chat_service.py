@@ -8,6 +8,7 @@ from rag.rag_service import rag_service
 from rag.query_expander import query_expander
 from rag.profile_extractor import profile_extractor
 from service.service_matcher import service_matcher
+from service import persist
 from utils.logger_handler import logger
 
 
@@ -17,7 +18,7 @@ class ChatService:
     职责：
     1. 意图识别（政策/服务/健康/通用）
     2. 路由到对应业务流
-    3. 组装上下文（多轮对话记忆）
+    3. 组装上下文（多轮对话记忆，SQLite持久化）
     4. 统一响应格式（含来源引用、免责声明）
     """
 
@@ -40,8 +41,7 @@ class ChatService:
     ]
 
     def __init__(self):
-        # 简单的内存会话存储（生产环境应换 Redis）
-        self._sessions: dict[str, list[dict]] = {}
+        self._session_turns: dict[str, int] = {}  # session_id → 当前轮次
 
     # ── 公共入口 ─────────────────────────────────
 
@@ -371,29 +371,27 @@ class ChatService:
 
         return "\n".join(lines)
 
-    # ── 多轮对话记忆 ─────────────────────────────
+    # ── 多轮对话记忆（SQLite 持久化）─────────────
 
     def _build_query(self, session_id: str, query: str) -> str:
         """构建含历史上下文的查询"""
-        history = self._sessions.get(session_id, [])
+        history = persist.get_session_history(session_id, limit=3)
         if not history:
             return query
-        # 取最近3轮对话拼入上下文
-        recent = history[-3:]
         context_parts = []
-        for h in recent:
+        for h in history:
             context_parts.append(f"用户：{h['query']}")
             context_parts.append(f"助手：{h['answer'][:200]}")
         return "\n".join(context_parts + [f"用户：{query}"])
 
     def _save_history(self, session_id: str, query: str, answer: str):
-        """保存会话历史"""
-        if session_id not in self._sessions:
-            self._sessions[session_id] = []
-        self._sessions[session_id].append({"query": query, "answer": answer})
-        # 保留最近10轮
-        if len(self._sessions[session_id]) > 10:
-            self._sessions[session_id] = self._sessions[session_id][-10:]
+        """保存会话历史到 SQLite"""
+        if session_id not in self._session_turns:
+            self._session_turns[session_id] = 0
+        self._session_turns[session_id] += 1
+        persist.save_session_turn(
+            session_id, self._session_turns[session_id], query, answer
+        )
 
 
 # 全局单例
