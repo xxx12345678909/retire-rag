@@ -635,6 +635,17 @@
                             <div><span class="text-slate-400">角色：</span><span class="font-bold">{{ authUser.role === 'admin' ? '管理员' : '普通用户' }}</span></div>
                         </div>
                     </div>
+                    <div class="bg-white rounded-2xl border p-6 shadow-sm">
+                        <h2 class="font-bold text-xl mb-4">🏥 健康档案</h2>
+                        <div v-if="healthProfile.elder_name" class="grid grid-cols-2 gap-4 text-sm">
+                            <div><span class="text-slate-400">姓名：</span><span class="font-bold">{{ healthProfile.elder_name }}</span></div>
+                            <div><span class="text-slate-400">年龄：</span><span class="font-bold">{{ healthProfile.age }} 岁</span></div>
+                            <div><span class="text-slate-400">慢性病：</span><span class="font-bold text-red-600">{{ healthProfile.chronic_diseases || '-' }}</span></div>
+                            <div><span class="text-slate-400">用药：</span><span class="font-bold">{{ healthProfile.medications || '-' }}</span></div>
+                            <div class="col-span-2"><span class="text-slate-400">备注：</span><span class="font-bold">{{ healthProfile.notes || '-' }}</span></div>
+                        </div>
+                        <p v-else class="text-slate-400 text-sm">暂无档案，请在「健康管理」页面填写</p>
+                    </div>
                     <!-- 家属绑定 -->
                     <div class="bg-white rounded-2xl border p-6 shadow-sm">
                         <h2 class="font-bold text-xl mb-4">👨‍👩‍👦 家属绑定</h2>
@@ -978,7 +989,11 @@
                         const r = await fetch(`${API_BASE}/api/auth/me`, {
                             headers: { 'Authorization': `Bearer ${authToken.value}` }
                         });
-                        if (r.ok) authUser.value = await r.json();
+                        if (r.ok) {
+                            authUser.value = await r.json();
+                            fetchFamily();
+                            fetchHealthProfile();
+                        }
                     } catch(e) {}
                     authLoaded.value = true;
                 };
