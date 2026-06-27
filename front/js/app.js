@@ -661,7 +661,7 @@ const { createApp, ref, computed, watch, nextTick } = Vue;
                 };
             }
         });
-    };
+    }
 }
 
 // 注：产品原型.html 调用 createPlatformApp().mount("#app") 完成挂载
