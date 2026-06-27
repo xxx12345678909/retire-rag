@@ -7,6 +7,7 @@ ChatService — 智慧养老AI助手业务大脑
 from rag.rag_service import rag_service
 from rag.query_expander import query_expander
 from rag.profile_extractor import profile_extractor
+from service.service_matcher import service_matcher
 from utils.logger_handler import logger
 
 
@@ -144,14 +145,23 @@ class ChatService:
         }
 
     def service_flow(self, query: str) -> dict:
-        """服务导办流：关键词扩展 + 多路RAG检索服务库"""
+        """服务导办流：需求提取 → 机构数据库筛选 → 个性化推荐"""
         logger.info(f"[service_flow]处理服务类问题：{query[:50]}...")
 
+        # 1. 机构数据库匹配（核心——结构化条件筛选）
+        match_result = service_matcher.match(query)
+        results = match_result.get("results", [])
+
+        # 2. RAG 检索服务库（兜底——FAQ/流程说明）
         expanded = query_expander.expand(query)
         context, docs = rag_service.multi_retrieve_context(expanded, kb="service")
         sources = rag_service.get_sources(docs)
 
-        answer = self._assemble_service_answer(query, context, docs)
+        # 3. 有机构结果 → 结构化推荐；无 → RAG 兜底
+        if results:
+            answer = match_result["answer"]
+        else:
+            answer = self._assemble_service_answer(query, context, docs)
 
         return {
             "answer": answer,
