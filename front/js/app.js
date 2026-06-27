@@ -639,6 +639,25 @@ const { createApp, ref, computed, watch, nextTick } = Vue;
                 fetchPolicies();
                 fetchInstitutes();
 
+                return {
+                    isSeniorMode, currentTab, serviceTab, menuTabs,
+                    toggleSeniorMode, switchTab, toast, toastText, citationDoc,
+                    authToken, authUser, authLoaded, showLoginModal, loginForm,
+                    registerForm, isRegistering, doLogin, doRegister, doLogout, loadAuth,
+                    familyForm, familyMembers, familyMsg, familyMsgType, bindFamily, fetchFamily,
+                    institutes, instLoading, filters, filterInstitutes,
+                    resetFilters, bookInstitute, fetchInstitutes,
+                    serviceList, orderForm, orderList, orderLoading,
+                    submitOrder, cancelOrder, fetchServices, fetchOrders,
+                    policies, policyLoading, calcForm, calcResult, calculateBenefits, showOriginalDoc,
+                    pillList, pillForm, addPill, deletePill, mockHealthArticles, triggerSOS,
+                    chunkSettings, uploadStatus, triggerMockUpload, mockChunks,
+                    mockQaLogs, optimizeChunk,
+                    aiOpen, currentKbType, userInput, isAiTyping, isSpeaking, isRecording,
+                    messageBox, activeKBScanningText, kbNameMap, placeholderMap,
+                    quickQuestionsMap, chatHistory, openAIScene, consultPolicy,
+                    consultHealth, sendPresetQuestion, simulateSpeech, speakText,
+                    highlightCitation, handleSendMessage
                 };
             }
         });
