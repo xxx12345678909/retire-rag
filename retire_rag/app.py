@@ -453,6 +453,21 @@ async def list_user_bookings(
     return {"data": bookings}
 
 
+@app.put("/api/services/bookings/{booking_id}/cancel")
+async def cancel_my_booking(
+    booking_id: int,
+    current_user: dict = Depends(get_current_user),
+):
+    """用户取消自己的预约"""
+    if not current_user:
+        return JSONResponse({"error": "请先登录"}, status_code=401)
+    from service.booking_admin import update_booking_status
+    ok = update_booking_status(booking_id, "cancelled")
+    if ok:
+        return {"message": "已取消"}
+    return JSONResponse({"error": "未找到该预约"}, status_code=404)
+
+
 @app.get("/admin/bookings")
 async def admin_bookings(
     limit: int = 50,

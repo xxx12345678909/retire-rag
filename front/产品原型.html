@@ -1117,10 +1117,9 @@
                 const cancelOrder = async (id) => {
                     if (!authToken.value) { showToast('请先登录'); return; }
                     try {
-                        const r = await fetch(`${API_BASE}/admin/bookings/${id}/status`, {
+                        const r = await fetch(`${API_BASE}/api/services/bookings/${id}/cancel`, {
                             method: 'PUT',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken.value}` },
-                            body: JSON.stringify({ status: 'cancelled' })
+                            headers: { 'Authorization': `Bearer ${authToken.value}` }
                         });
                         if (r.ok) { showToast('预约已取消'); fetchOrders(); }
                         else showToast('取消失败');
