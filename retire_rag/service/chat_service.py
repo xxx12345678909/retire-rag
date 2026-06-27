@@ -45,37 +45,28 @@ class ChatService:
 
     # ── 公共入口 ─────────────────────────────────
 
-    def handle(self, query: str, session_id: str = "default") -> dict:
-        """统一处理入口
-
-        Args:
-            query: 用户自然语言提问
-            session_id: 会话ID（用于多轮对话）
-
-        Returns:
-            {
-                "answer": str,
-                "intent": str,
-                "kb": str,
-                "sources": [{"title": str, "snippet": str}],
-                "disclaimer": str | None,
-            }
-        """
+    def handle(self, query: str, session_id: str = "default", profile: str = "") -> dict:
+        """统一处理入口"""
         # 1. 构建上下文查询（含历史对话）
         contextual_query = self._build_query(session_id, query)
 
-        # 2. 意图识别（基于含历史的上下文，支持多轮追问）
+        # 2. 意图识别（仅用原始问题，不含档案避免干扰）
         intent = self.detect_intent(contextual_query)
 
-        # 3. 路由到业务流
+        # 3. 档案附加到RAG检索上下文（意图确定后）
+        rag_query = contextual_query
+        if profile:
+            rag_query = contextual_query + " " + profile
+
+        # 4. 路由到业务流
         if intent == "policy":
-            result = self.policy_flow(contextual_query)
+            result = self.policy_flow(rag_query)
         elif intent == "service":
-            result = self.service_flow(contextual_query)
+            result = self.service_flow(rag_query)
         elif intent == "health":
-            result = self.health_flow(contextual_query)
+            result = self.health_flow(rag_query)
         else:
-            result = self.general_flow(contextual_query)
+            result = self.general_flow(rag_query)
 
         # 4. 保存会话历史
         self._save_history(session_id, query, result["answer"])

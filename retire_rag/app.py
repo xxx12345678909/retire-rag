@@ -115,6 +115,7 @@ class ChatRequest(BaseModel):
     query: str
     session_id: str = "default"
     use_agent: bool = False  # True=React Agent, False=ChatService（规则路由）
+    profile: str = ""        # 用户档案（不参与意图识别，只用于RAG检索增强）
 
 
 class ChatResponse(BaseModel):
@@ -164,7 +165,7 @@ async def chat(req: ChatRequest):
             session_id=req.session_id,
         )
 
-    result = chat_service.handle(req.query, req.session_id)
+    result = chat_service.handle(req.query, req.session_id, profile=req.profile)
     trace.step("done", f"kb={result.get('kb')}")
 
     # ── 持久化 ──

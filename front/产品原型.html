@@ -1564,22 +1564,25 @@
                     }, 600);
 
                     try {
-                        // 构建档案信息（仅健康类问题时附加，避免干扰意图识别）
-                        let profileText = '';
+                        // 构建档案上下文（独立字段，不干扰意图识别）
+                        let profileContext = '';
                         if (authUser.value && healthProfile.value.elder_name) {
                             const hp = healthProfile.value;
                             const parts = [`老人：${hp.elder_name}，${hp.age}岁`];
                             if (hp.chronic_diseases) parts.push(`慢性病：${hp.chronic_diseases}`);
                             if (hp.medications) parts.push(`用药：${hp.medications}`);
-                            profileText = '【用户档案】' + parts.join('；') + '。';
+                            if (hp.notes) parts.push(`备注：${hp.notes}`);
+                            if (familyMembers.value.length) {
+                                parts.push('家属：' + familyMembers.value.map(m => `${m.name} ${m.phone}(${m.relation})`).join('；'));
+                            }
+                            profileContext = parts.join('；') + '。';
                         }
-                        // 档案附加在问题后面，不干扰意图识别（意图检测按关键词顺序匹配，政策优先于通用）
-                        const fullQuery = profileText ? userText + ' ' + profileText : userText;
                         const response = await fetch(`${API_BASE}/api/v1/chat`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                query: fullQuery,
+                                query: userText,
+                                profile: profileContext,
                                 session_id: sessionId,
                                 use_agent: false
                             })
