@@ -26,7 +26,7 @@ class ChatService:
     POLICY_KEYWORDS = [
         "补贴", "政策", "高龄", "津贴", "长护险", "养老金", "退休金",
         "申请条件", "办理", "申领", "社保", "户籍", "低保", "补助",
-        "养老服务补贴", "残疾", "优抚", "福利",
+        "养老服务补贴", "残疾", "优抚", "福利", "消费券", "保险",
     ]
     SERVICE_KEYWORDS = [
         "养老院", "养老机构", "护理院", "照顾", "失能", "托管",
@@ -179,14 +179,20 @@ class ChatService:
         }
 
     def general_flow(self, query: str) -> dict:
-        """通用RAG流：关键词扩展 + 多路RAG检索平台库"""
+        """通用RAG流：关键词扩展 + 多路RAG检索 + LLM总结"""
         logger.info(f"[general_flow]处理通用问题：{query[:50]}...")
 
         expanded = query_expander.expand(query)
         context, docs = rag_service.multi_retrieve_context(expanded, kb="platform")
         sources = rag_service.get_sources(docs)
 
-        answer = self._assemble_general_answer(query, context, docs)
+        if not docs or "未找到" in context:
+            answer = (
+                f"抱歉，我没有完全理解「{query}」的意思。\n\n"
+                "您可以尝试：\n1. 换个方式提问\n2. 拨打客服热线获取人工帮助"
+            )
+        else:
+            answer = self._llm_summarize(query, context)
 
         return {
             "answer": answer,
@@ -336,6 +342,24 @@ class ChatService:
                 lines.append(f"  - {src}")
 
         return "\n".join(lines)
+
+    def _llm_summarize(self, query: str, context: str) -> str:
+        """调用 LLM 对检索上下文做总结，替代原始拼装"""
+        try:
+            from langchain_core.messages import HumanMessage
+            from model.factory import chat_model
+            prompt = f"""你是智慧养老助手。根据以下参考资料回答用户问题，用温暖易懂的中文。
+
+用户问题：{query}
+
+参考资料：
+{context[:3000]}
+
+要求：严格基于参考资料回答，不编造；涉及流程分步骤说明；末尾标注参考来源。"""
+            resp = chat_model.invoke([HumanMessage(content=prompt)])
+            return resp.content.strip()
+        except Exception:
+            return context[:1500]
 
     def _assemble_general_answer(self, query: str, context: str, docs: list) -> str:
         """组装通用/平台操作类回答"""
