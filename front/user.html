@@ -52,8 +52,8 @@
                     <input id="family-name" type="text" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="请输入家属姓名">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">身份证号</label>
-                    <input id="family-idcard" type="text" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="请输入18位身份证号">
+                    <label class="block text-xs font-bold text-slate-500 mb-1">手机号</label>
+                    <input id="family-phone" type="text" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500" placeholder="请输入家属手机号">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-1">关系</label>
@@ -163,7 +163,7 @@
     document.getElementById('family-bind-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         var name = document.getElementById('family-name').value.trim();
-        var idcard = document.getElementById('family-idcard').value.trim();
+        var phone = document.getElementById('family-phone').value.trim();
         var relation = document.getElementById('family-relation').value;
         var msgEl = document.getElementById('bind-message');
 
@@ -177,7 +177,7 @@
         try {
             var data = await authFetch('/api/user/family-bind', {
                 method: 'POST',
-                body: JSON.stringify({ name: name, id_card: idcard, relation: relation })
+                body: JSON.stringify({ name: name, phone: phone, relation: relation })
             });
             msgEl.textContent = '绑定成功';
             msgEl.className = 'text-xs mt-3 text-emerald-600';

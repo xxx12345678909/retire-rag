@@ -505,8 +505,9 @@ async def admin_booking_status(
 
 class FamilyBindRequest(BaseModel):
     name: str
-    id_card: str
-    relation: str
+    phone: str = ""
+    id_card: str = ""
+    relation: str = "其他"
     notes: str = ""
 
 
@@ -599,7 +600,7 @@ async def sos_trigger_endpoint(current_user: dict = Depends(get_current_user)):
         from service.user_service import get_family
         members = get_family(user_id)
         if members:
-            family_info = "；".join(f"{m['name']}（{m['relation']}）{m['id_card']}" for m in members[:3])
+            family_info = "；".join(f"{m['name']} {m.get('phone','')}（{m['relation']}）" for m in members[:3])
     message = f"紧急求助！请立即联系！" + (f" 紧急联系人：{family_info}" if family_info else "")
     alert = sos_trigger(user_id=user_id, username=username, phone=phone, message=message)
     return {"message": "紧急呼叫已发送，工作人员将尽快响应", "alert": alert}

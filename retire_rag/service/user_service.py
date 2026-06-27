@@ -25,7 +25,8 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
-                id_card TEXT NOT NULL,
+                phone TEXT DEFAULT '',
+                id_card TEXT DEFAULT '',
                 relation TEXT NOT NULL,
                 notes TEXT DEFAULT '',
                 created_at TEXT NOT NULL
@@ -36,15 +37,15 @@ def init_db():
         conn.close()
 
 
-def bind_family(user_id: int, name: str, id_card: str, relation: str, notes: str = "") -> dict:
+def bind_family(user_id: int, name: str, id_card: str = "", relation: str = "其他", phone: str = "", notes: str = "") -> dict:
     """绑定家庭成员"""
     conn = _get_conn()
     try:
         created_at = datetime.now().isoformat()
         cursor = conn.execute(
-            "INSERT INTO family_members (user_id, name, id_card, relation, notes, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (user_id, name, id_card, relation, notes, created_at),
+            "INSERT INTO family_members (user_id, name, phone, id_card, relation, notes, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (user_id, name, phone, id_card, relation, notes, created_at),
         )
         conn.commit()
         row = conn.execute(
