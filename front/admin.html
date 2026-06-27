@@ -97,8 +97,6 @@
 
 <script src="shared.js"></script>
 <script>
-const API_BASE = 'http://localhost:8000';
-
 // 权限检查 — 直接从 token 解码
 function checkAdmin() {
   var token = localStorage.getItem('auth_token');
@@ -123,7 +121,7 @@ function checkAdmin() {
 // 加载统计
 async function loadStats() {
   try {
-    var r = await fetch(API_BASE + '/admin/debug/stats');
+    var r = await authFetch( '/admin/debug/stats');
     var d = await r.json();
     document.getElementById('stat-requests').textContent = d.runtime.requests;
     document.getElementById('stat-llm').textContent = d.runtime.llm_calls;
@@ -152,7 +150,7 @@ async function loadStats() {
 // 加载日志
 async function loadLogs() {
   try {
-    var r = await fetch(API_BASE + '/admin/logs?limit=20');
+    var r = await authFetch( '/admin/logs?limit=20');
     var d = await r.json();
     var logs = d.data || [];
     var html = '';
@@ -174,7 +172,7 @@ async function loadLogs() {
 // KB重载
 async function reloadKB() {
   try {
-    var r = await fetch(API_BASE + '/admin/kb/reload');
+    var r = await authFetch( '/admin/kb/reload');
     var d = await r.json();
     alert('知识库重载完成\n' + JSON.stringify(d.stats));
     loadStats();
@@ -193,7 +191,7 @@ document.getElementById('upload-form').addEventListener('submit', async function
   msgEl.classList.remove('hidden');
   msgEl.textContent = '上传中...';
   try {
-    var r = await fetch(API_BASE + '/admin/docs/upload', { method: 'POST', body: formData });
+    var r = await authFetch( '/admin/docs/upload', { method: 'POST', body: formData });
     var d = await r.json();
     msgEl.textContent = d.message || '上传成功';
     msgEl.className = 'text-xs mt-2 text-emerald-600';
@@ -212,7 +210,7 @@ async function dryRun() {
   pre.classList.remove('hidden');
   pre.textContent = '测试中...';
   try {
-    var r = await fetch(API_BASE + '/admin/debug/dry-run', {
+    var r = await authFetch( '/admin/debug/dry-run', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({query: q})

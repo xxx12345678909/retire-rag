@@ -47,8 +47,9 @@ async function authFetch(url, options = {}) {
     if (!token) {
         throw new Error('未登录');
     }
+    const isFormData = options.body instanceof FormData;
     const headers = {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         'Authorization': `Bearer ${token}`,
         ...(options.headers || {})
     };
