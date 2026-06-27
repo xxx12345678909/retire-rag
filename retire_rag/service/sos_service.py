@@ -21,6 +21,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             username TEXT,
+            phone TEXT,
             message TEXT,
             location TEXT DEFAULT '定位获取中...',
             status TEXT DEFAULT 'active',
@@ -31,12 +32,12 @@ def init_db():
     conn.close()
 
 
-def trigger_sos(user_id: int = None, username: str = "", message: str = "紧急求助") -> dict:
+def trigger_sos(user_id: int = None, username: str = "", phone: str = "", message: str = "紧急求助") -> dict:
     conn = _get_conn()
     created_at = datetime.now().isoformat()
     cursor = conn.execute(
-        "INSERT INTO sos_alerts (user_id, username, message, status, created_at) VALUES (?,?,?,?,?)",
-        (user_id, username, message, "active", created_at),
+        "INSERT INTO sos_alerts (user_id, username, phone, message, status, created_at) VALUES (?,?,?,?,?,?)",
+        (user_id, username, phone, message, "active", created_at),
     )
     conn.commit()
     row = conn.execute("SELECT * FROM sos_alerts WHERE id=?", (cursor.lastrowid,)).fetchone()

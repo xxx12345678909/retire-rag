@@ -592,7 +592,8 @@ async def sos_trigger_endpoint(current_user: dict = Depends(get_current_user)):
     """用户触发紧急呼叫"""
     username = current_user["username"] if current_user else "匿名用户"
     user_id = current_user["id"] if current_user else None
-    alert = sos_trigger(user_id=user_id, username=username, message="紧急求助！请立即联系！")
+    phone = current_user.get("phone", "") if current_user else ""
+    alert = sos_trigger(user_id=user_id, username=username, phone=phone, message="紧急求助！请立即联系！")
     return {"message": "紧急呼叫已发送，工作人员将尽快响应", "alert": alert}
 
 
